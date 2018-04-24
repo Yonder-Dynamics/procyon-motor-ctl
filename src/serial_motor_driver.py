@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 import rospy
-from sensor_msgs.msg import Joy
+from rover_ctl.msg import MotorCMD
 from serial import Serial
 import time, math
 
@@ -48,44 +48,19 @@ def callback(msg):
         return
     last_message_send = time.time()
 
-    turningRadius = -msg.axes[0]
-    sign = -1 if turningRadius < 0 else 1
-    #turningRadius = sign*(MAX_TURNING_RADIUS*(1-abs(turningRadius))+wheelBaseWidth)
-
-    forwardVel = 255*msg.axes[1]
-
-    #vel_mag = math.sqrt(msg.axes[0]**2 + msg.axes[1]**2)
-    vel_mag = max(abs(msg.axes[0]), abs(msg.axes[1]))
-    turningSpeed = (255*vel_mag-abs(forwardVel))
-    if turningSpeed > 0:
-        turningSpeed = turningSpeed
-
-    # Send abstract commands
-    """
-    msg = b'%f,%f,%f,\n' % (turningRadius, turningSpeed, forwardVel)
-    print(msg)
-    s.write(msg)
-    """
-    # Send raw commands
-    msg = b'{},' * len(drivetrain) + b'\n'
-    turningSpeeds = [0] * len(drivetrain)
-    for i in range(len(drivetrain)):
-        turningSpeeds[i] = abs(drivetrain[i].getTurningSpeed(turningRadius, turningSpeed))
-
-    maxTurningSpeed = max(turningSpeeds)
-    speeds = [0] * len(drivetrain)
-    for i in range(len(drivetrain)):
-        speeds[i] = int(drivetrain[i].getMotorSpeed(turningRadius, turningSpeed, maxTurningSpeed, forwardVel))
-    msg = msg.format(*speeds)
-    print(msg)
-    s.write(msg)
+    #Send
+    serialMsg = b'{},' * len(drivetrain) + b'\n'
+    serialMsg = serialMsg.format(*msg.data)
+    print(serialMsg)
+    s.write(serialMsg)
     #print(s.readline())
 
 def init():
-    rospy.init_node("xbox_ctl", anonymous=True)
-    rospy.Subscriber("/joy", Joy, callback)
+    rospy.init_node("serial_motor_driver", anonymous=True)
+    rospy.Subscriber("/motor_ctl", MotorCMD, callback)
     rospy.spin()
     s.close()
 
 if __name__ == "__main__":
     init()
+
