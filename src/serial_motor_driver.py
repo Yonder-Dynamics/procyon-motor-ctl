@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import rospy
 from rover_ctl.msg import MotorCMD
+from std_msgs.msg import Bool
 from serial import Serial
 import time, math
 
@@ -15,6 +16,7 @@ TIMEOUT = 2
 s = Serial("/dev/ttyACM0", 19200)
 time.sleep(1)
 last_message_send = 0
+is_stopped = False
 
 # data: [int]
 def makeSerialMsg(data):
@@ -22,7 +24,14 @@ def makeSerialMsg(data):
     serialMsg = serialMsg.format(*data)
     return serialMsg
 
+def kill_callback(msg):
+    is_stopped = msg.data
+
 def callback(msg):
+    # Kill switch
+    if is_stopped:
+        return
+
     global last_message_send
     if time.time() - last_message_send < MSG_PER:
         return
@@ -44,6 +53,7 @@ def init():
     global last_message_send
     rospy.init_node("serial_motor_driver", anonymous=True)
     rospy.Subscriber("/motor_ctl", MotorCMD, callback)
+    rospy.Subscriber("/killswitch", Bool, kill_callback)
     # Check if still recieving messages
     while not rospy.is_shutdown():
         if last_message_send > TIMEOUT:
@@ -54,4 +64,3 @@ def init():
 
 if __name__ == "__main__":
     init()
-
