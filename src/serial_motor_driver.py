@@ -42,15 +42,26 @@ drivetrain.append(Motor(5,0.4218, 0.53975, 255, False))
 
 wheelBaseWidth = 0.50
 
+# data: [int]
+def makeSerialMsg(data):
+    serialMsg = b'{},' * len(len(data)) + b'\n'
+    serialMsg = serialMsg.format(*data)
+    return serialMsg
+
 def callback(msg):
     global last_message_send
     if time.time() - last_message_send < MSG_PER:
         return
     last_message_send = time.time()
 
+    # Check for out of bounds ints
+    for x in msg.data:
+        if x > 255:
+            s.write(makeSerialMsg([0] * 6))
+            break
+
     #Send
-    serialMsg = b'{},' * len(drivetrain) + b'\n'
-    serialMsg = serialMsg.format(*msg.data)
+    serialMsg = makeSerialMsg(msg.data)
     print(serialMsg)
     s.write(serialMsg)
     #print(s.readline())
@@ -59,6 +70,7 @@ def init():
     rospy.init_node("serial_motor_driver", anonymous=True)
     rospy.Subscriber("/motor_ctl", MotorCMD, callback)
     rospy.spin()
+    s.write(makeSerialMsg([0] * 6))
     s.close()
 
 if __name__ == "__main__":
