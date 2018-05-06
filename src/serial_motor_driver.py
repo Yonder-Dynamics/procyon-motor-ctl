@@ -32,7 +32,7 @@ def callback(msg):
     for x in msg.data:
         if x > 255:
             s.write(makeSerialMsg([0] * 6))
-            break
+            return
 
     #Send
     serialMsg = makeSerialMsg(msg.data)
