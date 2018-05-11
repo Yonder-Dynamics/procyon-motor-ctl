@@ -2,10 +2,10 @@
 
 // LEFT TRAIN
 // top left
-#define ROV_TL_PIN_DIR       42
-#define ROV_TL_PIN_FREEWHEEL 43
-#define ROV_TL_PIN_RSTOP     41
-#define ROV_TL_PIN_PWM       13
+#define ROV_TL_PIN_DIR       47
+#define ROV_TL_PIN_FREEWHEEL 46
+#define ROV_TL_PIN_RSTOP     45
+#define ROV_TL_PIN_PWM       12
 
 // RIGHT TRAIN
 // top right
@@ -15,10 +15,10 @@
 #define ROV_TR_PIN_PWM       4
 
 // mid left
-#define ROV_ML_PIN_DIR       47
-#define ROV_ML_PIN_FREEWHEEL 46
-#define ROV_ML_PIN_RSTOP     45
-#define ROV_ML_PIN_PWM       12
+#define ROV_ML_PIN_DIR       42
+#define ROV_ML_PIN_FREEWHEEL 43
+#define ROV_ML_PIN_RSTOP     41
+#define ROV_ML_PIN_PWM       13
 
 // mid right
 #define ROV_MR_PIN_DIR       26
