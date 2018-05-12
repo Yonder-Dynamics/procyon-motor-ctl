@@ -86,23 +86,24 @@ int parseCommand(char* input) {
   int i = 0;
   int j = 0;
   int arg = 0;
-  float vs[3];
+  int num_vals = 3;
+  float vs[num_vals];
   for (; input[i] != 0; i++) {
     if (input[i] == delim) {
       input[i] = 0;
       vs[arg++] = atof(input+j);
       j = i + 1;
-      if(arg == 3){
+      if(arg == num_vals){
         break;
       }
     }
   }
 
-  Serial.print((int)vs[0]);
-  Serial.print(", ");
-  Serial.print((int)vs[1]);
-  Serial.print(", ");
-  Serial.println((int)vs[2]);
+  for(i=0;i<num_vals-1;i++){
+    Serial.print((int)vs[i]);
+    Serial.print(", ");
+  }
+  Serial.println((int)vs[i]);
   rover.setSpeeds(vs[0],vs[1],vs[2]);
   return i;
 }
