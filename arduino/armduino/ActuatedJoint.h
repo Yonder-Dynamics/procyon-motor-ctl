@@ -11,6 +11,7 @@ typedef struct{
     float left_mount_perp;
     float right_mount_aligned;
     float right_mount_perp;
+    float offset;
 
     // calculated info
     float left_hyp;
@@ -28,6 +29,7 @@ class ActuatedJoint{
         ActuatedJoint(LAD* lad, mount_ptr mount);
         float getAngle();
         void setGoal(float goal);
+        float getGoal();
         void update();
         void move(float movement);
     private:

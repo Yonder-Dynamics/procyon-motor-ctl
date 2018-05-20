@@ -15,7 +15,7 @@ float ActuatedJoint::getAngle(){
     float left_hyp  = this->mountInfo->left_hyp;
     float right_hyp = this->mountInfo->right_hyp;
 
-    float ext = (float)this->actuator->getExtension();
+    float ext = (float)this->actuator->getExtension() + this->mountInfo->offset;
 
     return left_a + right_a + cosines(ext,left_hyp,right_hyp);
 }
@@ -25,12 +25,17 @@ float ActuatedJoint::calcGoalExt(float goal_angle){
         goal_angle - this->mountInfo->left_angle - this->mountInfo->right_angle;
     return inv_cosines(spanned_angle,
                         this->mountInfo->left_hyp,
-                        this->mountInfo->right_hyp);
+                        this->mountInfo->right_hyp) - this->mountInfo->offset;
 }
 
 void ActuatedJoint::setGoal(float goal){
     this->goal = goal;
     this->actuator->setGoal(this->calcGoalExt(this->goal));
+    this->update();
+}
+
+float ActuatedJoint::getGoal(){
+    return this->goal;
 }
 
 void ActuatedJoint::move(float movement){

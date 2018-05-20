@@ -98,7 +98,8 @@ void report_joint_data(JointData* joint){
 void set_joint_goal(int ID,float goal){
   JointData* joint = joint_data+ID;
   joint->goal = goal;
-  report_joint_data(joint);
+  // report_joint_data(joint);
+  ARM_SERIAL.write((char*)joint,JOINT_DATA_SIZE);
 }
 
 int getComma(char* msg){
@@ -204,19 +205,9 @@ void setup_joints(){
   }
 }
 
-void request_joint_goals(){
-  int i;
-  for(i=0;i<NUM_JOINTS;i++){
-    ARM_SERIAL.write((char*)(joint_data+i),JOINT_DATA_SIZE);
-  }
-}
-
 void setup() {
-  PI_SERIAL.begin(19200);
-  // ARM_SERIAL.begin(9600);
-
-  //Serial.print("Setting rover wheels...");
-  //Serial.begin(9600);
+  PI_SERIAL.begin(BAUDRATE);
+  ARM_SERIAL.begin(BAUDRATE);
   
   if (rover.setup() == ROV_OK) {
     //Serial.println("Failed to fail.");
@@ -254,6 +245,12 @@ void loop() {
     //write joint data to pi
     report_joint_data(joint_buffer);
   }
+
+  // while(ARM_SERIAL.available()){
+  //   int read = ARM_SERIAL.readBytes(buffer,BUFFER_LEN);
+  //   buffer[read] = 0;
+  //   PI_SERIAL.println(buffer);
+  // }
 
   // request_joint_goals();
 

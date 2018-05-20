@@ -1,5 +1,7 @@
 #pragma once
 
+const unsigned long BAUDRATE = 19200;
+
 typedef struct{
     int ID;
     float goal;
