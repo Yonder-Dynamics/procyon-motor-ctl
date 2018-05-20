@@ -33,6 +33,16 @@ void ActuatedJoint::setGoal(float goal){
     this->actuator->setGoal(this->calcGoalExt(this->goal));
 }
 
+void ActuatedJoint::move(float movement){
+    int dir = 0;
+    if(movement > 0){
+        dir = 1;
+    }else if(movement < 0){
+        dir = -1;
+    }
+    this->actuator->move(dir,(int)abs(movement));
+}
+
 void ActuatedJoint::calcMountInfo(){
     float left_a = this->mountInfo->left_mount_aligned;
     float left_p = this->mountInfo->left_mount_perp;

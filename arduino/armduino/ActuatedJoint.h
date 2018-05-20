@@ -29,6 +29,7 @@ class ActuatedJoint{
         float getAngle();
         void setGoal(float goal);
         void update();
+        void move(float movement);
     private:
         void calcMountInfo();
         float calcGoalExt(float goal_angle);

@@ -1,9 +1,10 @@
 #pragma once
 
-#include "common.h"
+#include <vector>
 #include "Arduino.h"
 #include "defines.h"
 #include "motor.h"
+#include "Common.h"
 
 #define VERSION 2018
 

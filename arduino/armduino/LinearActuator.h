@@ -10,6 +10,7 @@ class LinearActuatorDriver{
         void setGoal(distance_t goal);
         distance_t getExtension();
         void update();
+        void move(int dir,int speed);
     private:
         bool evaluate();
         void pinSetup();

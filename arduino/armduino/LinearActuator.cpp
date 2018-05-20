@@ -32,15 +32,26 @@ bool LAD::evaluate(){
 }
 
 void LAD::update(){
+    int dir = 0;
     if(this->evaluate()){
         if(this->extension - this->goal > 0){
-            digitalWrite(this->dir,HIGH);
+            dir = 1;
         } else{
-            digitalWrite(this->dir,LOW);
+            dir = -1;
         }
-        this->moving = true;
-        analogWrite(this->pwm,this->speed);   
-    } else {
+    }
+    this->move(dir,this->speed);
+}
+
+void LAD::move(int dir,int speed){
+    this->moving = true;
+    if(dir > 0){
+        digitalWrite(this->dir,HIGH);
+        analogWrite(this->pwm,speed); 
+    } else if(dir < 0){
+        digitalWrite(this->dir,LOW);
+        analogWrite(this->pwm,speed); 
+    } else{
         this->moving = false;
         analogWrite(this->pwm,0);
     }
