@@ -21,6 +21,7 @@ void report_joint_data(JointData* joint){
 }
 
 void setup(){
+  Serial.begin(19200);
     joint_data = {
         3,0.5,0.6
     };
