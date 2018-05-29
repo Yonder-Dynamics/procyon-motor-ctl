@@ -1,7 +1,9 @@
 #pragma once
+#include "Common.h"
 
 #define distance_t unsigned long //centimeters
-#define PINGER_MAGIC 0.034
+#define PINGER_SCALE 10000
+#define PINGER_MAGIC 0.034*PINGER_SCALE
 
 class Pinger{
     public:

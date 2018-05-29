@@ -4,12 +4,23 @@
 
 #define LAD LinearActuatorDriver
 
+typedef struct{
+    int dir;
+    int pwm;
+    int trig;
+    int echo;
+    distance_t tol;
+    distance_t offset;
+} LinearActuatorDriverInfo;
+
+#define LAD_INFO LinearActuatorDriverInfo
+
 class LinearActuatorDriver{
     public:
-        LinearActuatorDriver(distance_t tol,int dirPin,int pwmPin,int trigPin,int echoPin);
+        LinearActuatorDriver(LAD_INFO* info);
         void setGoal(distance_t goal);
         distance_t getExtension();
-        void update();
+        char update();
         void move(int dir,int speed);
     private:
         bool evaluate();
@@ -19,6 +30,7 @@ class LinearActuatorDriver{
         distance_t tolerance;
         distance_t extension;
         distance_t goal;
+        distance_t offset;
         bool moving;
         int speed;
         Pinger* pinger;

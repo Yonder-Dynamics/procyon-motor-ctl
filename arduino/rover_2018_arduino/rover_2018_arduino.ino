@@ -10,6 +10,9 @@
 #include "Arduino.h"
 #include "rov.h"
 #include "Common.h"
+#include "RoverArmSpec.h"
+#include "JointDriver.h"
+#include "Pinger.h"
 
 #define MAX_SPEED 255
 
@@ -26,8 +29,17 @@ char delim = ',';
 
 const int num_joint_data_vals = 2;
 const int NUM_JOINTS = 4;
-JointData joint_data[NUM_JOINTS+1];
-JointData* joint_buffer = joint_data+NUM_JOINTS;
+// JointData joint_data[NUM_JOINTS+1];
+// JointData* joint_buffer = joint_data+NUM_JOINTS;
+
+const int NUM_ACTUATORS = 2;
+
+float goals[NUM_JOINTS+1];
+
+JointData joint_data;
+JointData* joint_buffer = &joint_data;
+
+JointDriver** drivers;
 
 
 const int SIG_FIGS = 3;
@@ -35,7 +47,11 @@ const int SIG_EXP = pow(10,SIG_FIGS);
 void printFloat(float f){
   PI_SERIAL.print((int)f);
   PI_SERIAL.print('.');
-  PI_SERIAL.print(((int)(f * SIG_EXP))%SIG_EXP);
+  PI_SERIAL.print(abs(((int)(f * SIG_EXP))%SIG_EXP));
+}
+
+void make_linear_actuated(ActuatedJoint** driver,ActuatorMount* mount,LAD_INFO* info){
+    *driver = new ActuatedJoint(new LinearActuatorDriver(info),mount);
 }
 
 int parsePhoneCommand(char input) {
@@ -87,6 +103,7 @@ int parsePhoneCommand(char input) {
 }
 
 void report_joint_data(JointData* joint){
+  PI_SERIAL.print("#ARM#");
   PI_SERIAL.print(joint->ID);
   PI_SERIAL.print(",");
   printFloat(joint->goal);
@@ -95,57 +112,72 @@ void report_joint_data(JointData* joint){
   PI_SERIAL.print("\n");
 }
 
-void set_joint_goal(int ID,float goal){
-  JointData* joint = joint_data+ID;
-  joint->goal = goal;
-  // report_joint_data(joint);
-  ARM_SERIAL.write((char*)joint,JOINT_DATA_SIZE);
-}
+// void set_joint_goal(int ID,float goal){
+//   JointData* joint = joint_data+ID;
+//   joint->goal = goal;
+//   report_joint_data(joint);
+//   ARM_SERIAL.write((char*)joint,JOINT_DATA_SIZE);
+// }
 
-int getComma(char* msg){
+int getDelim(char* msg,char delim){
   int i;
   for(i = 0; msg[i] != 0; i++ ){
-    if(msg[i] == ','){
+    if(msg[i] == delim){
       break;
     }
   }
   return i;
 }
 
-int parseInt(char** msg,int* dest){
-  int comma = getComma(*msg);
-  if(comma){
-    *(*msg+comma) = 0;
+int parseInt(char** msg,char delim,int* dest){
+  int field_end = getDelim(*msg,delim);
+  if(field_end){
+    *(*msg+field_end) = 0;
     *dest = atoi(*msg);
-    comma += 1;
+    field_end += 1;
   }
-  *msg += comma;
-  return comma;
+  *msg += field_end;
+  return field_end;
 }
 
-int parseFloat(char** msg,float* dest){
-  int comma = getComma(*msg);
-  if(comma){
-    *(*msg+comma) = 0;
+int parseFloat(char** msg,char delim,float* dest){
+  int field_end = getDelim(*msg,delim);
+  if(field_end){
+    *(*msg+field_end) = 0;
     *dest = atof(*msg);
-    comma += 1;
+    field_end += 1;
   }
-  *msg += comma;
-  return comma;
+  *msg += field_end;
+  return field_end;
 }
 
-int parseCommand(char* input) {
+int parseArmCommand(char* input){
+  int i;
   char* start = input;
-  int i = 0;
+  int   joint_id;
+  float joint_angle;
+  for(i=0;i<NUM_JOINTS;i++){
+    if(!parseInt(&input,MSG_CONTENTS_DELIM,&joint_id)){
+      return input-start;
+    }
+    if(!parseFloat(&input,MSG_CONTENTS_DELIM,&joint_angle)){
+      return input - start;
+    }
+    drivers[joint_id]->setGoal(joint_angle);
+    // set_joint_goal(joint_id,joint_angle);
+  }
+  return input - start;
+}
 
+int parseDriveCommand(char* input){
   int duty_vals = 6;
   std::vector<int> duties;
   int   duty_val;
-  int   joint_ids[NUM_JOINTS];
-  float joint_angles[NUM_JOINTS];
-
+  int i;
+  char* start = input;
+  PI_SERIAL.print("#DRIVE#");
   for(i=0;i<duty_vals;i++){
-    if(!parseInt(&input,&duty_val)){
+    if(!parseInt(&input,MSG_CONTENTS_DELIM,&duty_val)){
       return input - start;
     }
     duties.push_back(duty_val);
@@ -153,21 +185,29 @@ int parseCommand(char* input) {
     PI_SERIAL.print(", ");
   }
   PI_SERIAL.println();
-
   rover.setDuties(duties);
-
-  for(i=0;i<NUM_JOINTS;i++){
-    if(!parseInt(&input,joint_ids+i)){
-      return input-start;
-    }
-    if(!parseFloat(&input,joint_angles+i)){
-      break;
-    }
-    set_joint_goal(joint_ids[i],joint_angles[i]);
-  }
-  PI_SERIAL.println();
-
   return input - start;
+}
+
+int parseCommand(char* input) {
+  char* start = input;
+  int i = 0;
+
+  while(input[i] != 0 && input[i] != '#') i++;
+  if(!input[i]) return 0;
+  input += ++i;
+  int ID;
+  if(!parseInt(&input,MSG_HEADER_DELIM,&ID)){
+    return i;
+  }
+  int read;
+  switch(ID){
+    case ARM_MSG_HEADER:
+      return i + parseArmCommand(input);
+    case DRIVE_MSG_HEADER:
+    default:
+      return i + parseDriveCommand(input);
+  }
 }
 
 int parseMotorDuties(char* input) {
@@ -194,32 +234,46 @@ int parseMotorDuties(char* input) {
   return i;
 }
 
-void setup_joints(){
-  int i;
-  JointData* joint;
-  for(i=0;i<NUM_JOINTS;i++){
-    joint = joint_data + i;
-    joint->ID     = i;
-    joint->goal   = 0;
-    joint->angle  = 0;
-  }
-}
+// void setup_joints(){
+//   int i;
+//   JointData* joint;
+//   for(i=0;i<NUM_JOINTS;i++){
+//     joint = joint_data + i;
+//     joint->ID     = i;
+//     joint->goal   = 0;
+//     joint->angle  = 0;
+//   }
+// }
+
+Pinger* pinger;
 
 void setup() {
   PI_SERIAL.begin(BAUDRATE);
   ARM_SERIAL.begin(BAUDRATE);
-  
-  if (rover.setup() == ROV_OK) {
-    //Serial.println("Failed to fail.");
-  } else {
-    PI_SERIAL.println("Failed.");
-    while(1) {}
-  }
 
-  setup_joints();
+  pinger = new Pinger(47,46);
+
+  drivers = calloc(NUM_ACTUATORS,sizeof(JointDriver*));
+
+  // make_linear_actuated(drivers+BASE_JOINT_ID,&base_mount,&base_info);
+  // make_linear_actuated(drivers+ELBOW_JOINT_ID,&elbow_mount,&elbow_info);
+  
+  // if (rover.setup() == ROV_OK) {
+  //   //Serial.println("Failed to fail.");
+  // } else {
+  //   PI_SERIAL.println("Failed.");
+  //   while(1) {}
+  // }
+
+  // setup_joints();
 }
 
 void loop() {
+
+  Serial.print("Distance : ");
+  Serial.println(pinger->readDistance());
+  return;
+
   if (PI_SERIAL.available()){
     /*
     char read = Serial.read();
@@ -234,17 +288,14 @@ void loop() {
 
     //write goals to joints
   }
-  while(ARM_SERIAL.available()){
-    //read arm driver status
-    int read = ARM_SERIAL.readBytes((char*)(joint_buffer),JOINT_DATA_SIZE);
 
-    if(read < JOINT_DATA_SIZE){
-      break; //toss it out
-    }
-
-    //write joint data to pi
-    report_joint_data(joint_buffer);
+  int i;
+  char dir;
+  for(i = 0; i < NUM_ACTUATORS; i++){
+    ARM_SERIAL.write((char)i);
+    ARM_SERIAL.write(drivers[i]->update());
   }
+
 
   // while(ARM_SERIAL.available()){
   //   int read = ARM_SERIAL.readBytes(buffer,BUFFER_LEN);

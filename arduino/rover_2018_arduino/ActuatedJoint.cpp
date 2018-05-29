@@ -15,9 +15,20 @@ float ActuatedJoint::getAngle(){
     float left_hyp  = this->mountInfo->left_hyp;
     float right_hyp = this->mountInfo->right_hyp;
 
-    float ext = (float)this->actuator->getExtension() + this->mountInfo->offset;
+    float ext = ((float)this->actuator->getExtension())/PINGER_SCALE;
 
-    return left_a + right_a + cosines(ext,left_hyp,right_hyp);
+
+
+
+    float angle = left_a + right_a + cosines(ext,left_hyp,right_hyp);
+    if(this->mountInfo->flipped){
+        angle = M_PI - angle;
+    }
+    Serial.print("Angle2: ");
+    // Serial.print((long)(cosines(ext,left_hyp,right_hyp)*100));
+    printFloat(angle*180/M_PI);
+    Serial.println();
+    return angle;
 }
 
 float ActuatedJoint::calcGoalExt(float goal_angle){
@@ -25,13 +36,16 @@ float ActuatedJoint::calcGoalExt(float goal_angle){
         goal_angle - this->mountInfo->left_angle - this->mountInfo->right_angle;
     return inv_cosines(spanned_angle,
                         this->mountInfo->left_hyp,
-                        this->mountInfo->right_hyp) - this->mountInfo->offset;
+                        this->mountInfo->right_hyp);
 }
 
 void ActuatedJoint::setGoal(float goal){
+    if(this->mountInfo->flipped){
+        goal = M_PI - goal;
+    }
     this->goal = goal;
     this->actuator->setGoal(this->calcGoalExt(this->goal));
-    this->update();
+    // this->update();
 }
 
 float ActuatedJoint::getGoal(){
@@ -58,21 +72,39 @@ void ActuatedJoint::calcMountInfo(){
     float left_hyp  = sqrt(left_a*left_a + left_p*left_p);
     float right_hyp = sqrt(right_a*right_a + right_p*right_p);
 
+
     this->mountInfo->left_hyp = left_hyp;
     this->mountInfo->right_hyp = right_hyp;
 
-    this->mountInfo->left_angle = cosines(left_p,left_a,left_hyp);
-    this->mountInfo->right_angle = cosines(right_p,right_a,right_hyp);
+    float left_ang = cosines(left_p,left_a,left_hyp);
+    float right_ang = cosines(right_p,right_a,right_hyp);
+
+    if(left_p < 0){
+        left_ang = -left_ang;
+    }
+    if(right_p < 0){
+        right_ang = -right_ang;
+    }
+
+    // Serial.print("Left Hyp: ");
+    // printFloat(left_ang*180/M_PI);
+    // Serial.print("\nRight Hyp: ");
+    // printFloat(right_ang*180/M_PI);
+    // Serial.println();
+
+    this->mountInfo->left_angle = left_ang;
+    this->mountInfo->right_angle = right_ang;
 }
 
-void ActuatedJoint::update(){
-    this->actuator->update();
+char ActuatedJoint::update(){
+    return this->actuator->update();
 }
 
 //law of cosines
 float cosines(float a,float b,float c){
     float cosA = (b*b + c*c - a*a)/(2*b*c);
-    return acosf(cosA);
+    float angle = acosf(cosA);
+    return angle;
 }
 
 float inv_cosines(float A,float b,float c){

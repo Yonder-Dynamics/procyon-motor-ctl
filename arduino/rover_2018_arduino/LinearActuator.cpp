@@ -1,9 +1,9 @@
 #include "LinearActuator.h"
 
-LAD::LinearActuatorDriver(distance_t tol,int dirPin,int pwmPin,int trigPin,int echoPin):
-    dir(dirPin),pwm(pwmPin),tolerance(tol){
+LAD::LinearActuatorDriver(LAD_INFO* info):
+    dir(info->dir),pwm(info->pwm),tolerance(info->tol),offset(info->offset){
     this->pinSetup();
-    this->pinger = new Pinger(trigPin,echoPin);
+    this->pinger = new Pinger(info->trig,info->echo);
     this->moving = false;
     this->extension = this->getExtension();
     this->goal = this->extension;
@@ -16,9 +16,9 @@ void LAD::pinSetup(){
 }
 
 distance_t LAD::getExtension(){
-    if(this->moving){
-        this->extension = this->pinger->readDistance();
-    }
+    // Serial.println("Offset: ");
+    // Serial.println(this->offset);
+    this->extension = this->pinger->readDistance() + this->offset * PINGER_SCALE;
     return this->extension;
 }
 
@@ -31,8 +31,8 @@ bool LAD::evaluate(){
     return (abs(diff) > this->tolerance);
 }
 
-void LAD::update(){
-    int dir = 0;
+char LAD::update(){
+    char dir = 0;
     if(this->evaluate()){
         if(this->extension - this->goal > 0){
             dir = 1;
@@ -40,7 +40,8 @@ void LAD::update(){
             dir = -1;
         }
     }
-    this->move(dir,this->speed);
+    return dir;
+    // this->move(dir,this->speed);
 }
 
 void LAD::move(int dir,int speed){

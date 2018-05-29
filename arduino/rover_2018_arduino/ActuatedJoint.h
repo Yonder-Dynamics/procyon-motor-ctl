@@ -1,6 +1,8 @@
 #pragma once
 #include <cmath>
 #include "LinearActuator.h"
+#include "JointDriver.h"
+#include "Common.h"
 
 #define mount_t ActuatorMount
 #define mount_ptr mount_t*
@@ -11,7 +13,7 @@ typedef struct{
     float left_mount_perp;
     float right_mount_aligned;
     float right_mount_perp;
-    float offset;
+    bool flipped;
 
     // calculated info
     float left_hyp;
@@ -24,13 +26,13 @@ float cosines(float a, float b, float c);
 float inv_cosines(float A, float b, float c);
 
 
-class ActuatedJoint{
+class ActuatedJoint:public JointDriver{
     public:
         ActuatedJoint(LAD* lad, mount_ptr mount);
         float getAngle();
         void setGoal(float goal);
         float getGoal();
-        void update();
+        char update();
         void move(float movement);
     private:
         void calcMountInfo();
@@ -38,6 +40,7 @@ class ActuatedJoint{
 
         float goal;
         float angle;
+        bool flipped;
         mount_ptr mountInfo;
         LAD* actuator;
 };
