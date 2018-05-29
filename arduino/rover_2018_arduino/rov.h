@@ -4,7 +4,7 @@
 #include "Arduino.h"
 #include "defines.h"
 #include "motor.h"
-#include "Common.h"
+#include "common.h"
 
 #define VERSION 2018
 

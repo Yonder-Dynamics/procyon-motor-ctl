@@ -2,7 +2,7 @@
 #include <cmath>
 #include "LinearActuator.h"
 #include "JointDriver.h"
-#include "Common.h"
+#include "common.h"
 
 #define mount_t ActuatorMount
 #define mount_ptr mount_t*

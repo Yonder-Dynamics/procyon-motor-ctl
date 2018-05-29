@@ -9,7 +9,7 @@
 #include <vector>
 #include "Arduino.h"
 #include "rov.h"
-#include "Common.h"
+#include "common.h"
 #include "RoverArmSpec.h"
 #include "JointDriver.h"
 #include "Pinger.h"
@@ -270,9 +270,9 @@ void setup() {
 
 void loop() {
 
-  Serial.print("Distance : ");
-  Serial.println(pinger->readDistance());
-  return;
+  //Serial.print("Distance : ");
+  //Serial.println(pinger->readDistance());
+  //return;
 
   if (PI_SERIAL.available()){
     /*
