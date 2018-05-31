@@ -1,6 +1,6 @@
 #pragma once
 
-const unsigned long BAUDRATE = 19200;
+const unsigned long BAUDRATE = 57600;
 
 typedef struct{
     int ID;
@@ -13,9 +13,14 @@ typedef struct{
 #define PINMODE_ASCII_DELIM     ','
 #define PINOP_RAW_HEADER        '*'
 #define PINOP_ASCII_HEADER      '$'
+#define WIPE_HEADER             '!'
+#define SERVO_HEADER            '%'
+#define DUMP_HEADER             '?'
 
+#define UNSET_OP                 -1
 #define DIGITAL_OP               0
 #define ANALOG_OP                1
+#define SERVO_OP                 2
 
 #define MSG_HEADER_DELIM    '#'
 #define MSG_CONTENTS_DELIM  ','
@@ -34,6 +39,15 @@ typedef struct{
 #define WRIST_JOINT_ID  3
 #define WRIST_ROT_ID    4
 #define HAND_ID         5
+
+#define NANO_A0     14
+#define NANO_A1     15
+#define NANO_A2     16
+#define NANO_A3     17
+#define NANO_A4     18
+#define NANO_A5     19
+#define NANO_A6     20
+#define NANO_A7     21
 
 #define DISTANCE_SCALE  1 //from cm
 

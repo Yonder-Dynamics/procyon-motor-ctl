@@ -21,11 +21,11 @@
 #define ARM_SERIAL  Serial1
 #define PI_SERIAL   Serial
 
-#define DRILL_PWM         0
-#define DRILL_DIR         0
-#define DRILL_ACT_DIR     0
-#define DRILL_ACT_PWM     0
-#define DRILL_SERVO_POS   0
+#define DRILL_DIR         51
+#define DRILL_PWM         2
+#define DRILL_ACT_DIR     13
+#define DRILL_ACT_PWM     6
+#define DRILL_SERVO_POS   11
 
 ROV rover;
 
@@ -210,20 +210,28 @@ int parseDrillCommand(char* input){
   char* start = input;
   //drill speed, actuator speed, actuator dir, servo position
   int drill_dir,drill_speed, act_speed, act_dir, servo_pos;
-  if(!parseInt(&input,MSG_CONTENTS_DELIM,&drill_dir))   return start - input;
-  if(!parseInt(&input,MSG_CONTENTS_DELIM,&drill_speed)) return start - input;
+  // if(!parseInt(&input,MSG_CONTENTS_DELIM,&act_dir))     return start - input;
   if(!parseInt(&input,MSG_CONTENTS_DELIM,&act_speed))   return start - input;
-  if(!parseInt(&input,MSG_CONTENTS_DELIM,&act_dir))     return start - input;
+  // if(!parseInt(&input,MSG_CONTENTS_DELIM,&drill_dir))   return start - input;
+  if(!parseInt(&input,MSG_CONTENTS_DELIM,&drill_speed)) return start - input;
   if(!parseInt(&input,MSG_CONTENTS_DELIM,&servo_pos))   return start - input;
 
-  if(act_dir == 0){
-    act_speed = 0;
-  }
-  proxyDigitalWrite(DRILL_DIR,drill_dir);
-  proxyAnalogWrite(DRILL_PWM,drill_speed);
+  drill_dir = (drill_speed>0)?HIGH:LOW;
+  drill_speed = abs(drill_speed);
+  act_dir = (act_speed>0)?HIGH:LOW;
+  act_speed = abs(act_speed);
+
+  Serial.println(drill_dir);
+  Serial.println(drill_speed);
+  Serial.println(act_dir);
+  Serial.println(act_speed);
+  Serial.println(servo_pos);
+
+  digitalWrite(DRILL_DIR,drill_dir);
+  analogWrite(DRILL_PWM,drill_speed);
   proxyAnalogWrite(DRILL_ACT_PWM,act_speed);
   proxyAnalogWrite(DRILL_SERVO_POS,servo_pos);
-  proxyDigitalWrite(DRILL_ACT_DIR,(act_dir>0)?HIGH:LOW);
+  proxyDigitalWrite(DRILL_ACT_DIR,act_dir);
   return start - input;
 }
 
@@ -244,6 +252,8 @@ int parseCommand(char* input) {
       return i + parseArmCommand(input);
     case DRIVE_MSG_HEADER:
       return i + parseDriveCommand(input);
+    case DRILL_MSG_HEADER:
+      return i + parseDrillCommand(input);
     case KILL_HEADER:
     default:
       kill();
@@ -260,8 +270,8 @@ int parseMotorDuties(char* input) {
     if (input[i] == delim) {
       input[i] = 0;
       int duty = atoi(input+j);
-      //Serial.print(duty);
-      //Serial.print(",");
+      Serial.print(duty);
+      Serial.print(",");
       duties.push_back(duty);
       j = i + 1;
       arg += 1;
@@ -270,7 +280,7 @@ int parseMotorDuties(char* input) {
       }
     }
   }
-  //Serial.println();
+  Serial.println();
   rover.setDuties(duties);
   return i;
 }
@@ -306,18 +316,19 @@ void setup() {
   make_linear_actuated(drivers+BASE_JOINT_ID,&base_mount,&base_info);
   make_linear_actuated(drivers+ELBOW_JOINT_ID,&elbow_mount,&elbow_info);
 
-  proxyInit(DRILL_PWM, OUTPUT);
-  proxyInit(DRILL_DIR, OUTPUT);
+  Serial1.write('!');
+  pinMode(DRILL_PWM, OUTPUT);
+  pinMode(DRILL_DIR, OUTPUT);
   proxyInit(DRILL_ACT_DIR, OUTPUT);
   proxyInit(DRILL_ACT_PWM, OUTPUT);
-  proxyInit(DRILL_SERVO_POS, OUTPUT);
+  servoInit(DRILL_SERVO_POS);
   
-  // if (rover.setup() == ROV_OK) {
-  //   //Serial.println("Failed to fail.");
-  // } else {
-  //   PI_SERIAL.println("Failed. Hanging indefinitely...");
-  //   while(1);
-  // }
+  if (rover.setup() == ROV_OK) {
+    //Serial.println("Failed to fail.");
+  } else {
+    PI_SERIAL.println("Failed. Hanging indefinitely...");
+    while(1);
+  }
 
   // setup_joints();
 }
@@ -335,31 +346,31 @@ void loop() {
     int parsed = parseCommand(buffer); //what if there's more?
   }
 
-  int i;
-  char dir;
-  if(killed){
-    return;
-  }
-  int shouldPrint = !(millis() % 500);
-  for(i = 0; i < NUM_ACTUATORS; i++){
-      if(shouldPrint){
-        PI_SERIAL.print("Driver: ");
-        PI_SERIAL.println(i);
-      }
-      char update = drivers[i]->update();
-      char buffer[3];
-      buffer[0] = joint_map[i];
-      buffer[1] = update;
-      buffer[2] = 0;
-      ARM_SERIAL.print(buffer);
-      if(shouldPrint){
-        float angle = drivers[i]->getAngle();
-        PI_SERIAL.print("angle: ");
-        printFloat(angle*180/M_PI);
-        PI_SERIAL.print("\nupdate: ");
-        PI_SERIAL.println((int)update);
-      }
-  }
+  // int i;
+  // char dir;
+  // if(killed){
+  //   return;
+  // }
+  // int shouldPrint = !(millis() % 500);
+  // for(i = 0; i < NUM_ACTUATORS; i++){
+  //     if(shouldPrint){
+  //       PI_SERIAL.print("Driver: ");
+  //       PI_SERIAL.println(i);
+  //     }
+  //     char update = drivers[i]->update();
+  //     char buffer[3];
+  //     buffer[0] = joint_map[i];
+  //     buffer[1] = update;
+  //     buffer[2] = 0;
+  //     ARM_SERIAL.print(buffer);
+  //     if(shouldPrint){
+  //       float angle = drivers[i]->getAngle();
+  //       PI_SERIAL.print("angle: ");
+  //       printFloat(angle*180/M_PI);
+  //       PI_SERIAL.print("\nupdate: ");
+  //       PI_SERIAL.println((int)update);
+  //     }
+  // }
 
 
   // while(ARM_SERIAL.available()){
