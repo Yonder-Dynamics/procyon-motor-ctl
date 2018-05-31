@@ -8,16 +8,47 @@ typedef struct{
     float angle;
 }JointData;
 
+#define PINMODE_RAW_HEADER      '#'
+#define PINMODE_ASCII_HEADER    '@'
+#define PINMODE_ASCII_DELIM     ','
+#define PINOP_RAW_HEADER        '*'
+#define PINOP_ASCII_HEADER      '$'
+
+#define DIGITAL_OP               0
+#define ANALOG_OP                1
+
 #define MSG_HEADER_DELIM    '#'
 #define MSG_CONTENTS_DELIM  ','
+#define KILL_HEADER         -1
 #define DRIVE_MSG_HEADER    0
 #define ARM_MSG_HEADER      1
+#define DRILL_MSG_HEADER    2
 
-#define BASE_JOINT_ID   0
-#define ELBOW_JOINT_ID  1
-#define WRIST_JOINT_ID  2
+#define BASE_JOINT   0
+#define ELBOW_JOINT  1
+#define WRIST_JOINT  2
+
+#define BASE_ROT_ID     0
+#define BASE_JOINT_ID   1
+#define ELBOW_JOINT_ID  2
+#define WRIST_JOINT_ID  3
+#define WRIST_ROT_ID    4
+#define HAND_ID         5
 
 #define DISTANCE_SCALE  1 //from cm
+
+// #define DEBUG
+
+#ifdef DEBUG
+#define pinMode(x,y) \
+do{                                 \
+    pinMode(x,y);                   \
+    Serial.println("Pin mode: ");   \
+    Serial.print(x);                \
+    Serial.print(' ');              \
+    Serial.println(y);              \
+} while(0);
+#endif
 
 enum errorCode {
     ROV_OK,

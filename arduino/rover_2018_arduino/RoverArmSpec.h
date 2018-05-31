@@ -31,9 +31,9 @@ ActuatorMount base_mount = {
 LAD_INFO base_info = {
     .dir=       0,
     .pwm=       0,
-    .trig=      47,
-    .echo=      46,
-    .tol=       0*DISTANCE_SCALE,
+    .trig=      46,
+    .echo=      47,
+    .tol=       1*DISTANCE_SCALE,
     .offset=    13*DISTANCE_SCALE
 };
 
@@ -53,7 +53,7 @@ LAD_INFO elbow_info = {
     .pwm=       0,
     .trig=      49,
     .echo=      48,
-    .tol=       0*DISTANCE_SCALE,
+    .tol=       1*DISTANCE_SCALE,
     .offset=    18.5*DISTANCE_SCALE
 };
 
@@ -70,6 +70,6 @@ LAD_INFO wrist_info = {
     .pwm=       0,
     .trig=      0,
     .echo=      0,
-    .tol=       0*DISTANCE_SCALE,
+    .tol=       2*DISTANCE_SCALE,
     .offset=    0*DISTANCE_SCALE
 };

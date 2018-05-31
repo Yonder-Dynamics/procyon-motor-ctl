@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Arduino.h"
+#include "Common.h"
 
 class Motor {
  public:

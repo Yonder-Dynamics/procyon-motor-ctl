@@ -20,6 +20,7 @@ class LinearActuatorDriver{
         LinearActuatorDriver(LAD_INFO* info);
         void setGoal(distance_t goal);
         distance_t getExtension();
+        distance_t getRawExtension();
         char update();
         void move(int dir,int speed);
     private:
@@ -33,5 +34,8 @@ class LinearActuatorDriver{
         distance_t offset;
         bool moving;
         int speed;
+        int rolling_index;
+        int window_size;
+        distance_t* rolling_avg;
         Pinger* pinger;
 };
