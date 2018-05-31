@@ -24,10 +24,10 @@ float ActuatedJoint::getAngle(){
     if(this->mountInfo->flipped){
         angle = M_PI - angle;
     }
-    Serial.print("Angle2: ");
-    // Serial.print((long)(cosines(ext,left_hyp,right_hyp)*100));
-    printFloat(angle*180/M_PI);
-    Serial.println();
+    // Serial.print("Angle2: ");
+    // // Serial.print((long)(cosines(ext,left_hyp,right_hyp)*100));
+    // printFloat(angle*180/M_PI);
+    // Serial.println();
     return angle;
 }
 
