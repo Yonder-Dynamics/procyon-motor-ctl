@@ -25,8 +25,8 @@ class MotorDriver : public Motor {
     pinMode(dirPin, OUTPUT);
     digitalWrite(rstopPin, 0);
     digitalWrite(freewheelPin, 1);
-    digitalWrite(dirPin, isFlipped);
-    analogWrite(pwmPin, 0);
+    digitalWrite(dirPin, 0);
+    //analogWrite(pwmPin, 0);
   }
   void setDuty(float speed);
   void setDir(bool newDir);

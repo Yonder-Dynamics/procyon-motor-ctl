@@ -1,6 +1,6 @@
 #pragma once
 
-const unsigned long BAUDRATE = 57600;
+const unsigned long BAUDRATE = 19200;
 
 typedef struct{
     int ID;

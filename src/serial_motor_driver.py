@@ -10,12 +10,21 @@ MSG_RATE  = 15 #in Hz
 MSG_PER = 1./MSG_RATE
 MAX_TURNING_RADIUS = 10
 TIMEOUT = 2
+CLEAR_BUFFER = 20
+buffer_count = 0
 # Always use serial ports like this because they don't change
-serial_port = "/dev/serial/by-id/usb-Arduino__www.arduino.cc__0042_8543034393735141E052-if00"
+serial_port = "/dev/serial/by-id/usb-Arduino_Srl_Arduino_Mega_55635303838351816162-if00"
+
+MSG_TYPES = {
+    "drive": 0,
+    "motors": 0,
+    "arm": 1,
+    "drill": 2,
+}
 
 def openSerial():
     global s
-    s = Serial(serial_port, 19200)
+    s = Serial(serial_port, 57600)
     time.sleep(1)
 
 # Open serial. DO NOT REMOVE DELAY
@@ -27,9 +36,10 @@ last_message_send = 0
 is_stopped = False
 
 # data: [int]
-def makeSerialMsg(data):
-    serialMsg = b'{},' * len(data) + b'\n'
-    serialMsg = serialMsg.format(*data)
+def makeSerialMsg(msg):
+    serialMsg = b'#%i#' % MSG_TYPES[msg.type] + (b'{},' * len(msg.data) + b'\n')
+    serialMsg = serialMsg.format(*msg.data)
+    print(serialMsg)
     return serialMsg
 
 def kill_callback(msg):
@@ -38,7 +48,7 @@ def kill_callback(msg):
     s.write(makeSerialMsg([0]*6))
 
 def callback(msg):
-    global s, is_stopped, last_message_send
+    global s, is_stopped, last_message_send, buffer_count
     # Kill switch
     if is_stopped:
         return
@@ -52,9 +62,13 @@ def callback(msg):
         if x > 255:
             s.write(makeSerialMsg([0] * 6))
             return
+    if buffer_count > CLEAR_BUFFER:
+        s.reset_input_buffer()
+        s.reset_output_buffer()
+    buffer_count += 1
 
     #Send
-    serialMsg = makeSerialMsg(msg.data)
+    serialMsg = makeSerialMsg(msg)
     #print(serialMsg)
     try:
         s.write(serialMsg)

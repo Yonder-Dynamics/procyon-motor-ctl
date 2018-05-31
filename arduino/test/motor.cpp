@@ -21,7 +21,7 @@ void MotorDriver::setDuty(float speed) {
   if (isFlipped) {
     speed = -speed;
   }
-  setDir(speed > 0);
+  //setDir(speed > 0);
   
   //Serial.print("Motor: ");
   //Serial.print(ID);

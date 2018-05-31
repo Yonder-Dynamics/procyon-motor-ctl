@@ -251,19 +251,19 @@ void setup() {
   PI_SERIAL.begin(BAUDRATE);
   ARM_SERIAL.begin(BAUDRATE);
 
-  pinger = new Pinger(47,46);
+  //pinger = new Pinger(47,46);
 
-  drivers = calloc(NUM_ACTUATORS,sizeof(JointDriver*));
+  //drivers = calloc(NUM_ACTUATORS,sizeof(JointDriver*));
 
   // make_linear_actuated(drivers+BASE_JOINT_ID,&base_mount,&base_info);
   // make_linear_actuated(drivers+ELBOW_JOINT_ID,&elbow_mount,&elbow_info);
   
-  // if (rover.setup() == ROV_OK) {
-  //   //Serial.println("Failed to fail.");
-  // } else {
-  //   PI_SERIAL.println("Failed.");
-  //   while(1) {}
-  // }
+  if (rover.setup() == ROV_OK) {
+    PI_SERIAL.println("Failed to fail.");
+  } else {
+    PI_SERIAL.println("Failed. Hanging indefinitely...");
+    while(1);
+  }
 
   // setup_joints();
 }
@@ -288,14 +288,14 @@ void loop() {
 
     //write goals to joints
   }
-
+  /*
   int i;
   char dir;
   for(i = 0; i < NUM_ACTUATORS; i++){
     ARM_SERIAL.write((char)i);
     ARM_SERIAL.write(drivers[i]->update());
   }
-
+  */
 
   // while(ARM_SERIAL.available()){
   //   int read = ARM_SERIAL.readBytes(buffer,BUFFER_LEN);
