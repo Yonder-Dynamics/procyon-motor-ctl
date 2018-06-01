@@ -16,6 +16,8 @@ struct EncoderInfo{
     long ratio;
     long cycles;
     void (*interrupt)();
+    bool flip;
+    int speed;
 };
 
 void make_encoder_interrupt(int pin,void(*fn)(void));
@@ -29,9 +31,11 @@ class EncodedJoint:public JointDriver{
         char update();
         void move(float movement);
         void tare();
+        virtual void activate();
     private:
         EncoderInfo* info;
         float angle;
         float goal;
-        long cycles;
+        bool waiting;
+        unsigned long activated;
 };

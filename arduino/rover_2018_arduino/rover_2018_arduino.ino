@@ -41,16 +41,10 @@ const int BUFFER_LEN = 64;
 char buffer[BUFFER_LEN];
 char delim = ',';
 
-const int num_joint_data_vals = 2;
-const int NUM_JOINTS = 4;
-// JointData joint_data[NUM_JOINTS+1];
-// JointData* joint_buffer = joint_data+NUM_JOINTS;
 
-const int NUM_ACTUATORS = 2;
+// float goals[NUM_JOINTS+1];
 
-float goals[NUM_JOINTS+1];
-
-int joint_map[NUM_JOINTS];
+// int joint_map[NUM_JOINTS];
 
 JointData joint_data;
 JointData* joint_buffer = &joint_data;
@@ -311,17 +305,12 @@ int parseMotorDuties(char* input) {
 Pinger* pinger;
 
 void setup() {
-  joint_map[BASE_JOINT] = BASE_JOINT_ID;
-  joint_map[ELBOW_JOINT] = ELBOW_JOINT_ID;
-  joint_map[WRIST_JOINT] = WRIST_JOINT_ID;
   PI_SERIAL.begin(BAUDRATE);
   ARM_SERIAL.begin(BAUDRATE);
 
   PI_SERIAL.println("#SETUP# Mega starting up");
   proxyReset();
 
-
-  //pinger = new Pinger(47,46);
   killed = true;
 
   base_rot_enc.interrupt  = base_rot_enc_cycle;
@@ -338,6 +327,7 @@ void setup() {
 
   drivers[WRIST_JOINT_ID] = new EncodedJoint(WRIST_JOINT_ID,&wrist_enc);
   make_proxied(drivers[WRIST_JOINT_ID]);
+  drivers[WRIST_JOINT_ID]->activate();
 
 
   // pinMode(DRILL_PWM, OUTPUT);
@@ -370,7 +360,7 @@ void loop() {
   int i;
   for(i = 0; i < NUM_JOINTS; i++){
     if(!drivers[i]) continue;
-    // drivers[i]->update();
+    drivers[i]->update();
     report_joint_data(drivers[i]);
   }
 

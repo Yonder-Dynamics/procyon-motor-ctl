@@ -49,10 +49,12 @@ EncoderInfo base_rot_enc = {
     .pwm = ARM_BASE_ROT_PWM,
     .a   = ARM_BASE_ENC_A,
     .b   = ARM_BASE_ENC_B,
-    .tolerance = 0.1,
+    .tolerance = 0.005,
     .ratio = ARM_BASE_RATIO,
     .cycles = 0,
-    .interrupt = 0
+    .interrupt = 0,
+    .flip = false,
+    .speed = 30
 };
 
 make_cycler(base_rot_enc);
@@ -62,10 +64,12 @@ EncoderInfo wrist_enc = {
     .pwm = ARM_WRIST_PWM,
     .a   = ARM_WRIST_ENC_A,
     .b   = ARM_WRIST_ENC_B,
-    .tolerance = 0.1,
+    .tolerance = 0.005, //radians
     .ratio = ARM_WRIST_RATIO,
     .cycles = 0,
-    .interrupt = 0
+    .interrupt = 0,
+    .flip = false,
+    .speed = 255
 };
 
 make_cycler(wrist_enc);
@@ -75,10 +79,12 @@ EncoderInfo twist_enc = {
     .pwm = ARM_TWIST_PWM,
     .a   = ARM_TWIST_ENC_A,
     .b   = ARM_TWIST_ENC_B,
-    .tolerance = 0.1,
+    .tolerance = 0.005,
     .ratio = ARM_TWIST_RATIO,
     .cycles = 0,
-    .interrupt = 0
+    .interrupt = 0,
+    .flip = false,
+    .speed = 127
 };
 
 make_cycler(twist_enc);
@@ -89,10 +95,12 @@ EncoderInfo hand_enc = {
     .pwm = HAND_PWM,
     .a   = HAND_ENC_A,
     .b   = HAND_ENC_B,
-    .tolerance = 0.1,
+    .tolerance = 0.005,
     .ratio = HAND_ENC_RATIO,
     .cycles = 0,
-    .interrupt = 0
+    .interrupt = 0,
+    .flip = false,
+    .speed = 255
 };
 make_cycler(hand_enc);
 

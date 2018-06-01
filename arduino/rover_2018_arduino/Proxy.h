@@ -2,6 +2,8 @@
 #include "Arduino.h"
 #include "Common.h"
 
+#define PROXY_SERIAL    Serial1
+
 typedef struct{
     char header;
     int pin;

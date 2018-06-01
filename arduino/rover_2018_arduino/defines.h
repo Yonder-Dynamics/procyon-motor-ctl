@@ -1,5 +1,6 @@
 #pragma once
 // MOTOR DEFINES
+#define MOTOR_STARTUP_WAIT  100
 
 // LEFT TRAIN
 // top left
@@ -59,10 +60,10 @@
 #define ARM_ELBOW_ECHO          0
 #define ARM_ELBOW_TRIG          0
 
-#define ARM_WRIST_DIR           0
-#define ARM_WRIST_PWM           0
-#define ARM_WRIST_ENC_A         0
-#define ARM_WRIST_ENC_B         0
+#define ARM_WRIST_DIR           11
+#define ARM_WRIST_PWM           3
+#define ARM_WRIST_ENC_A         2
+#define ARM_WRIST_ENC_B         41
 #define ARM_WRIST_RATIO         60
 
 #define ARM_TWIST_DIR           0

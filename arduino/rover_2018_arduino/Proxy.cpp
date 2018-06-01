@@ -11,7 +11,7 @@ void servoInit(int pin){
 
 void proxyWrite(int pin, int value, int mode){
     ProxyWriteSerialized s = { PINOP_RAW_HEADER, pin, value, mode };
-    Serial1.write((char*)&s,sizeof(ProxyWriteSerialized));
+    PROXY_SERIAL.write((char*)&s,sizeof(ProxyWriteSerialized));
 }
 
 void proxyDigitalWrite(int pin, int value){
@@ -23,7 +23,7 @@ void proxyAnalogWrite(int pin, int value){
 }
 
 void proxyReset(){
-    Serial1.write('!');
+    PROXY_SERIAL.write('!');
 }
 
 // void proxyServoWrite(int pin, int value){

@@ -12,9 +12,10 @@ class JointDriver{
         virtual void tare();
         int getID(){ return this->ID; };
         void setID(int ID){ this-> ID = ID; };
-        void setDigitalOut(void (*fn)(int,int));
-        void setAnalogOut(void (*fn)(int,int));
-        void setPinMode(void (*fn)(int,int));
+        virtual void setDigitalOut(void (*fn)(int,int));
+        virtual void setAnalogOut(void (*fn)(int,int));
+        virtual void setPinMode(void (*fn)(int,int));
+        virtual void activate(){};
     private:
         int ID;
     protected:
