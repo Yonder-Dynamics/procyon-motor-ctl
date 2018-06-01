@@ -48,7 +48,7 @@
 #define ARM_BASE_ENC_A          21
 #define ARM_BASE_ENC_B          53
 #define ARM_BASE_RATIO          1
-#define ARM_BASE_ROT_SPEED      30
+#define ARM_BASE_ROT_SPEED      50
 
 
 #define ARM_BASE_JOINT_DIR      NANO_A0

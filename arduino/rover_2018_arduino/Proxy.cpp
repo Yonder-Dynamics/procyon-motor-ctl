@@ -10,6 +10,7 @@ void servoInit(int pin){
 }
 
 void proxyWrite(int pin, int value, int mode){
+    // Serial.println("uncomment move stuff fool");
     ProxyWriteSerialized s = { PINOP_RAW_HEADER, pin, value, mode };
     PROXY_SERIAL.write((char*)&s,sizeof(ProxyWriteSerialized));
 }
@@ -24,6 +25,11 @@ void proxyAnalogWrite(int pin, int value){
 
 void proxyReset(){
     PROXY_SERIAL.write('!');
+}
+
+void proxyCull(int timeout){
+    ProxyCullSerialized s = { CULL_RAW_HEADER, timeout };
+    PROXY_SERIAL.write((char*)&s,sizeof(ProxyCullSerialized));
 }
 
 // void proxyServoWrite(int pin, int value){

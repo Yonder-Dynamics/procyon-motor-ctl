@@ -15,10 +15,13 @@ typedef struct{
 #define PINOP_ASCII_HEADER      '$'
 #define WIPE_HEADER             '!'
 #define DUMP_HEADER             '?'
+#define CULL_RAW_HEADER         ':'
+#define CULL_ASCII_HEADER       '~'
 
 #define SERVO_MODE              -2
+#define UNSET_MODE              -1
 
-#define UNSET_OP                -1
+
 #define DIGITAL_OP               0
 #define ANALOG_OP                1
 // #define SERVO_OP                 2

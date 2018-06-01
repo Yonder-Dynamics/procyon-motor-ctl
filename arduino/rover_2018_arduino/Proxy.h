@@ -28,6 +28,11 @@ typedef struct{
     int pin;
 }ProxyServoInitSerialized;
 
+typedef struct{
+    char header;
+    int timeout;
+} ProxyCullSerialized;
+
 void proxyReset();
 
 void proxyInit(int pin, int mode);
@@ -37,3 +42,5 @@ void proxyWrite(int pin,int value,int mode);
 void proxyAnalogWrite(int pin,int value);
 void proxyDigitalWrite(int pin,int value);
 void proxyServoWrite(int pin, int value);
+
+void proxyCull(int timeout);

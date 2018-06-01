@@ -33,9 +33,20 @@
 //hand: dir=0  >> clockwise
 //base: pwm: limit to analogWrite(51)
 
+// typedef struct{
+//   unsigned long
+//   unsigned long timestamp;
+//   void (*setter)(int,int);
+//   int pin;
+// } ManualControls;
+
+// ManualControls manual;
+
 ROV rover;
 
 unsigned long AUTO_KILL_TIME = 50000000;
+int PROXY_CULL_TIME = 200;
+unsigned long base_kill = 0;
 unsigned long prev_message_time = 0;
 
 const int BUFFER_LEN = 64;
@@ -194,46 +205,55 @@ int parseDrillCommand(char* input){
 }
 
 int parseManualCommand(char* input){
-  int joint;
   char* start = input;
-  if(!parseInt(&input,MSG_CONTENTS_DELIM,&joint)){
-    return start - input;
-  }
-  int dir;
-  if(!parseInt(&input,MSG_CONTENTS_DELIM,&dir)){
-    return start - input;
-  }
+  int joint = 0;
+  while(joint < NUM_JOINTS){
+    // if(!parseInt(&input,MSG_CONTENTS_DELIM,&joint)){
+    //   return start - input;
+    // }
+    int dir;
+    if(!parseInt(&input,MSG_CONTENTS_DELIM,&dir)){
+      return start - input;
+    }
 
-  dir = (dir!=0)?HIGH:LOW;
+    if(dir == 0){
+      joint++;
+      continue;
+    }
 
-  switch(joint){
-    case BASE_ROT_ID:
-      digitalWrite(ARM_BASE_ROT_DIR,dir);
-      analogWrite(ARM_BASE_ROT_PWM,ARM_BASE_ROT_SPEED);
-      break;
-    case BASE_JOINT_ID:
-      proxyDigitalWrite(ARM_BASE_JOINT_DIR,dir);
-      proxyAnalogWrite(ARM_BASE_JOINT_PWM,ARM_BASE_JOINT_SPEED);
-      break;
-    case ELBOW_JOINT_ID:
-      proxyDigitalWrite(ARM_ELBOW_DIR,dir);
-      proxyAnalogWrite(ARM_ELBOW_PWM,ARM_ELBOW_JOINT_SPEED);
-      break;
-    case WRIST_JOINT_ID:
-      proxyDigitalWrite(ARM_WRIST_DIR,dir);
-      proxyAnalogWrite(ARM_WRIST_PWM,ARM_WRIST_SPEED);
-      break;
-    case WRIST_ROT_ID:
-      proxyDigitalWrite(ARM_TWIST_DIR,dir);
-      proxyAnalogWrite(ARM_TWIST_PWM,ARM_TWIST_SPEED);
-      break;
-    case HAND_ID:
-      proxyDigitalWrite(HAND_DIR,dir);
-      proxyAnalogWrite(HAND_PWM,HAND_SPEED);
-      break;
-    default:
-      PI_SERIAL.println("invalid joint ID");
-      break;
+    dir = (dir>0)?HIGH:LOW;
+
+    switch(joint){
+      case BASE_ROT_ID:
+        digitalWrite(ARM_BASE_ROT_DIR,dir);
+        analogWrite(ARM_BASE_ROT_PWM,ARM_BASE_ROT_SPEED);
+        base_kill = millis() + PROXY_CULL_TIME;
+        break;
+      case BASE_JOINT_ID:
+        proxyDigitalWrite(ARM_BASE_JOINT_DIR,dir);
+        proxyAnalogWrite(ARM_BASE_JOINT_PWM,ARM_BASE_JOINT_SPEED);
+        break;
+      case ELBOW_JOINT_ID:
+        proxyDigitalWrite(ARM_ELBOW_DIR,dir);
+        proxyAnalogWrite(ARM_ELBOW_PWM,ARM_ELBOW_JOINT_SPEED);
+        break;
+      case WRIST_JOINT_ID:
+        proxyDigitalWrite(ARM_WRIST_DIR,dir);
+        proxyAnalogWrite(ARM_WRIST_PWM,ARM_WRIST_SPEED);
+        break;
+      case WRIST_ROT_ID:
+        proxyDigitalWrite(ARM_TWIST_DIR,dir);
+        proxyAnalogWrite(ARM_TWIST_PWM,ARM_TWIST_SPEED);
+        break;
+      case HAND_ID:
+        proxyDigitalWrite(HAND_DIR,dir);
+        proxyAnalogWrite(HAND_PWM,HAND_SPEED);
+        break;
+      default:
+        PI_SERIAL.println("invalid joint ID");
+        break;
+    }
+    joint++;
   }
 
   return start - input;
@@ -326,7 +346,6 @@ void setup() {
   make_proxied(drivers[ELBOW_JOINT_ID]);
 
   drivers[BASE_ROT_ID] = new EncodedJoint(BASE_ROT_ID,&base_rot_enc);
-  make_proxied(drivers[BASE_ROT_ID]);
   drivers[BASE_ROT_ID]->activate();
 
   drivers[WRIST_JOINT_ID] = new EncodedJoint(WRIST_JOINT_ID,&wrist_enc);
@@ -358,6 +377,7 @@ void setup() {
 }
 
 void loop() {
+  unsigned long curr_time = millis();
   if (PI_SERIAL.available()){
     /*
     char read = Serial.read();
@@ -367,10 +387,10 @@ void loop() {
     int read = PI_SERIAL.readBytesUntil('\n', buffer, BUFFER_LEN);
     buffer[read] = 0; //null terminate the string just in case
     int parsed = parseCommand(buffer); //what if there's more?
-    prev_message_time = millis();
+    prev_message_time = curr_time;
   }
 
-  if (millis()-prev_message_time > AUTO_KILL_TIME) {
+  if (curr_time-prev_message_time > AUTO_KILL_TIME) {
     kill();
   }
 
@@ -380,6 +400,14 @@ void loop() {
     drivers[i]->update();
     report_joint_data(drivers[i]);
   }
+
+  proxyCull(PROXY_CULL_TIME);
+  if(base_kill && base_kill < curr_time){
+    Serial.println("killing base");
+    analogWrite(ARM_BASE_ROT_PWM,0);
+    base_kill = 0;
+  }
+
   // while(ARM_SERIAL.available()){
   //   int read = ARM_SERIAL.readBytes(buffer,BUFFER_LEN);
   //   buffer[read] = 0;

@@ -69,7 +69,7 @@ void ActuatedJoint::move(float movement) {
   }else if(movement < 0) {
     dir = -1;
   }
-//   this->actuator->move(dir,(int)abs(movement));
+  this->actuator->move(dir,(int)abs(movement));
 }
 
 void ActuatedJoint::calcMountInfo() {
@@ -107,7 +107,7 @@ void ActuatedJoint::calcMountInfo() {
 }
 
 char ActuatedJoint::update() {
-  return this->actuator->update();
+//   return this->actuator->update();
 }
 
 void ActuatedJoint::setPinMode(void (*fn)(int,int)){

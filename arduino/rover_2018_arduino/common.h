@@ -15,10 +15,13 @@ typedef struct{
 #define PINOP_ASCII_HEADER      '$'
 #define WIPE_HEADER             '!'
 #define DUMP_HEADER             '?'
+#define CULL_RAW_HEADER         ':'
+#define CULL_ASCII_HEADER       '~'
 
 #define SERVO_MODE              -2
+#define UNSET_MODE              -1
 
-#define UNSET_OP                -1
+
 #define DIGITAL_OP               0
 #define ANALOG_OP                1
 // #define SERVO_OP                 2
@@ -53,19 +56,6 @@ typedef struct{
 #define NANO_A7     21
 
 #define DISTANCE_SCALE  1 //from cm
-
-// #define DEBUG
-
-#ifdef DEBUG
-#define pinMode(x,y) \
-do{                                 \
-    pinMode(x,y);                   \
-    Serial.println("Pin mode: ");   \
-    Serial.print(x);                \
-    Serial.print(' ');              \
-    Serial.println(y);              \
-} while(0);
-#endif
 
 enum errorCode {
     ROV_OK,
