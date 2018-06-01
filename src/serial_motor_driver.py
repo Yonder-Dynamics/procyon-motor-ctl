@@ -2,6 +2,7 @@
 import rospy
 from rover_ctl.msg import MotorCMD
 from std_msgs.msg import Bool
+from std_msgs.msg import String
 from serial import Serial
 import time, math
 
@@ -11,9 +12,11 @@ MSG_PER = 1./MSG_RATE
 MAX_TURNING_RADIUS = 10
 TIMEOUT = 2
 CLEAR_BUFFER = 20
+BAUDRATE = [9600,57600,115200][2]
 buffer_count = 0
 # Always use serial ports like this because they don't change
 serial_port = "/dev/serial/by-id/usb-Arduino_Srl_Arduino_Mega_55635303838351816162-if00"
+pub = rospy.Publisher("arduino_serial", String, queue_size=20)
 
 MSG_TYPES = {
     "drive": 0,
@@ -24,7 +27,7 @@ MSG_TYPES = {
 
 def openSerial():
     global s
-    s = Serial(serial_port, 57600)
+    s = Serial(serial_port, BAUDRATE)
     time.sleep(1)
 
 # Open serial. DO NOT REMOVE DELAY
@@ -75,6 +78,9 @@ def callback(msg):
     except:
         openSerial()
         print("Looking for serial port: %s ..." % serial_port)
+    # Read data from serial as well
+    out = s.read(s.inWaiting()).decode('ascii')
+    pub.publish(out)
     #print(s.readline())
 
 def init():
