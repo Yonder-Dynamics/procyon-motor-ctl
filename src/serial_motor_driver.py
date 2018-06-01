@@ -23,6 +23,8 @@ MSG_TYPES = {
     "motors": 0,
     "arm": 1,
     "drill": 2,
+    "terr": 3,
+    "manual": 4,
 }
 
 def openSerial():
@@ -55,6 +57,8 @@ def callback(msg):
     # Kill switch
     if is_stopped:
         return
+    if msg.type == "terr":
+        s.write("#3#")
 
     if time.time() - last_message_send < MSG_PER:
         return
@@ -70,14 +74,15 @@ def callback(msg):
         s.reset_output_buffer()
     buffer_count += 1
 
-    #Send
     serialMsg = makeSerialMsg(msg)
-    #print(serialMsg)
+
+    # Reopen serial
     try:
         s.write(serialMsg)
     except:
         openSerial()
         print("Looking for serial port: %s ..." % serial_port)
+
     # Read data from serial as well
     out = s.read(s.inWaiting()).decode('ascii')
     pub.publish(out)
