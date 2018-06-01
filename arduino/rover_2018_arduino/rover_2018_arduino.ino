@@ -309,13 +309,10 @@ void setup() {
   PI_SERIAL.begin(BAUDRATE);
   ARM_SERIAL.begin(BAUDRATE);
 
+  //pinger = new Pinger(47,46);
   killed = true;
 
-  // pinger = new Pinger(46,47);
-  // pinMode(47,OUTPUT);
-  // pinMode(46,OUTPUT);
-
-  drivers = calloc(NUM_ACTUATORS,sizeof(JointDriver*));
+  //drivers = calloc(NUM_ACTUATORS,sizeof(JointDriver*));
 
   // make_linear_actuated(BASE_JOINT_ID,drivers,&base_mount,&base_info);
   make_linear_actuated(ELBOW_JOINT_ID,drivers,&elbow_mount,&elbow_info);
@@ -328,7 +325,12 @@ void setup() {
   // servoInit(DRILL_SERVO_POS);
   
   if (rover.setup() == ROV_OK) {
+<<<<<<< HEAD
     Serial.println("#SETUP# Completed.");
+=======
+    PI_SERIAL.println("Failed to fail.");
+    //Serial.println("Failed to fail.");
+>>>>>>> 158bc6ebf97e9b51a9a1d74e8ab0d4534a649734
   } else {
     PI_SERIAL.println("#SETUP# Failed. Hanging indefinitely...");
     while(1);
@@ -348,12 +350,41 @@ void loop() {
     buffer[read] = 0; //null terminate the string just in case
     int parsed = parseCommand(buffer); //what if there's more?
   }
+<<<<<<< HEAD
   int i;
   for(i = 0; i < NUM_ACTUATORS; i++){
     if(!drivers[i]) continue;
     drivers[i]->update();
     report_joint_data(drivers[i]);
   }
+=======
+
+  // int i;
+  // char dir;
+  // if(killed){
+  //   return;
+  // }
+  // int shouldPrint = !(millis() % 500);
+  // for(i = 0; i < NUM_ACTUATORS; i++){
+  //     if(shouldPrint){
+  //       PI_SERIAL.print("Driver: ");
+  //       PI_SERIAL.println(i);
+  //     }
+  //     char update = drivers[i]->update();
+  //     char buffer[3];
+  //     buffer[0] = joint_map[i];
+  //     buffer[1] = update;
+  //     buffer[2] = 0;
+  //     ARM_SERIAL.print(buffer);
+  //     if(shouldPrint){
+  //       float angle = drivers[i]->getAngle();
+  //       PI_SERIAL.print("angle: ");
+  //       printFloat(angle*180/M_PI);
+  //       PI_SERIAL.print("\nupdate: ");
+  //       PI_SERIAL.println((int)update);
+  //     }
+  // }
+>>>>>>> 158bc6ebf97e9b51a9a1d74e8ab0d4534a649734
 
   // while(ARM_SERIAL.available()){
   //   int read = ARM_SERIAL.readBytes(buffer,BUFFER_LEN);

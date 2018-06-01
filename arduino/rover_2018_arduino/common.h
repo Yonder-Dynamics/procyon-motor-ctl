@@ -71,4 +71,4 @@ enum errorCode {
     ROV_DUTY_OUT_OF_RANGE,
 };
 
-const int JOINT_DATA_SIZE = sizeof(JointData);
+void printFloat(float f);
