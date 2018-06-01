@@ -6,8 +6,7 @@ void proxyInit(int pin,int mode){
 }
 
 void servoInit(int pin){
-    ProxyServoInitSerialized p = { SERVO_HEADER, pin};
-    Serial1.write((char*)&p,sizeof(ProxyServoInitSerialized));
+    proxyInit(pin,SERVO_MODE);
 }
 
 void proxyWrite(int pin, int value, int mode){
@@ -21,6 +20,10 @@ void proxyDigitalWrite(int pin, int value){
 
 void proxyAnalogWrite(int pin, int value){
     proxyWrite(pin,value,ANALOG_OP);
+}
+
+void proxyReset(){
+    Serial1.write('!');
 }
 
 // void proxyServoWrite(int pin, int value){

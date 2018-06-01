@@ -28,12 +28,13 @@ float inv_cosines(float A, float b, float c);
 
 class ActuatedJoint:public JointDriver{
     public:
-        ActuatedJoint(LAD* lad, mount_ptr mount);
+        ActuatedJoint(int ID,LAD* lad, mount_ptr mount);
         float getAngle();
         void setGoal(float goal);
         float getGoal();
         char update();
         void move(float movement);
+        void tare(){}; //absolute measurement
     private:
         void calcMountInfo();
         float calcGoalExt(float goal_angle);

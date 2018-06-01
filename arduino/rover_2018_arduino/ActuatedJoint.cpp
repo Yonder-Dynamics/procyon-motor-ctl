@@ -1,7 +1,7 @@
 #include "ActuatedJoint.h"
 
-ActuatedJoint::ActuatedJoint(LAD* lad,mount_ptr mount):
-    mountInfo(mount),actuator(lad){
+ActuatedJoint::ActuatedJoint(int ID,LAD* lad,mount_ptr mount):
+    mountInfo(mount),actuator(lad),JointDriver(ID){
     
     this->calcMountInfo();
     this->angle = this->getAngle();

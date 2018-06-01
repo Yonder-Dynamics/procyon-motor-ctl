@@ -4,7 +4,6 @@ LAD::LinearActuatorDriver(LAD_INFO* info):
     dir(info->dir),pwm(info->pwm),tolerance(info->tol),offset(info->offset){
     this->pinSetup();
     this->pinger = new Pinger(info->trig,info->echo);
-    this->moving = false;
     this->extension = this->getRawExtension();
     this->goal = this->extension;
     this->speed = 255;
@@ -15,8 +14,20 @@ LAD::LinearActuatorDriver(LAD_INFO* info):
 }
 
 void LAD::pinSetup(){
-    pinMode(this->pwm,OUTPUT);
-    pinMode(this->dir,OUTPUT);
+    this->pinMode(this->pwm,OUTPUT);
+    this->pinMode(this->dir,OUTPUT);
+}
+
+void LAD::setDigitalOut(void (*fn)(int,int)){
+    this->digitalWrite = fn;
+}
+
+void LAD::setAnalogOut(void (*fn)(int,int)){
+    this->analogWrite = fn;
+}
+
+void LAD::setPinMode(void (*fn)(int,int)){
+    this->pinMode = fn;
 }
 
 distance_t LAD::getRawExtension(){
@@ -24,8 +35,6 @@ distance_t LAD::getRawExtension(){
 }
 
 distance_t LAD::getExtension(){
-    // Serial.println("Offset: ");
-    // Serial.println(this->offset);
     distance_t ext =  this->getRawExtension();
     this->rolling_avg[this->rolling_index] = ext;
     this->rolling_index = (this->rolling_index + 1 ) % this->window_size;
@@ -67,21 +76,20 @@ char LAD::update(){
     }else{
         // Serial.println("Done");
     }
+    this->move(dir,this->speed);
     return dir;
-    // this->move(dir,this->speed);
 }
 
 void LAD::move(int dir,int speed){
-    this->moving = true;
     if(dir > 0){
-        digitalWrite(this->dir,HIGH);
-        analogWrite(this->pwm,speed); 
+        this->digitalWrite(this->dir,HIGH);
+        this->analogWrite(this->pwm,speed); 
     } else if(dir < 0){
-        digitalWrite(this->dir,LOW);
-        analogWrite(this->pwm,speed); 
+        this->digitalWrite(this->dir,LOW);
+        this->analogWrite(this->pwm,speed); 
     } else{
         this->moving = false;
-        analogWrite(this->pwm,0);
+        this->analogWrite(this->pwm,0);
     }
 }
 

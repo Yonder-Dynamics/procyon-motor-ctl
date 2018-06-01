@@ -23,6 +23,9 @@ class LinearActuatorDriver{
         distance_t getRawExtension();
         char update();
         void move(int dir,int speed);
+        void setDigitalOut(void (*fn)(int,int));
+        void setAnalogOut(void (*fn)(int,int));
+        void setPinMode(void (*fn)(int,int));
     private:
         bool evaluate();
         void pinSetup();
@@ -32,6 +35,9 @@ class LinearActuatorDriver{
         distance_t extension;
         distance_t goal;
         distance_t offset;
+        void (*digitalWrite)(int,int);
+        void (*analogWrite)(int,int);
+        void (*pinMode)(int,int);
         bool moving;
         int speed;
         int rolling_index;

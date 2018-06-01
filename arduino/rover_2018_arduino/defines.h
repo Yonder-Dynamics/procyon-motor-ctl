@@ -1,3 +1,4 @@
+#pragma once
 // MOTOR DEFINES
 
 // LEFT TRAIN
@@ -36,3 +37,42 @@
 #define ROV_BR_PIN_FREEWHEEL 23
 #define ROV_BR_PIN_RSTOP     24
 #define ROV_BR_PIN_PWM       11
+
+
+//ARM
+#define MOTOR_RATIO             4320
+
+#define ARM_BASE_ROT_DIR        0
+#define ARM_BASE_ROT_PWM        0
+#define ARM_BASE_ENC_A          0
+#define ARM_BASE_ENC_B          0
+#define ARM_BASE_RATIO          1
+
+
+#define ARM_BASE_JOINT_DIR      0
+#define ARM_BASE_JOINT_PWM      0
+#define ARM_BASE_JOINT_ECHO     0
+#define ARM_BASE_JOINT_TRIG     0
+
+#define ARM_ELBOW_DIR           0
+#define ARM_ELBOW_PWM           0
+#define ARM_ELBOW_ECHO          0
+#define ARM_ELBOW_TRIG          0
+
+#define ARM_WRIST_DIR           0
+#define ARM_WRIST_PWM           0
+#define ARM_WRIST_ENC_A         0
+#define ARM_WRIST_ENC_B         0
+#define ARM_WRIST_RATIO         0
+
+#define ARM_TWIST_DIR           0
+#define ARM_TWIST_PWM           0
+#define ARM_TWIST_ENC_A         0
+#define ARM_TWIST_ENC_B         0
+#define ARM_TWIST_RATIO         3
+
+#define HAND_DIR                0
+#define HAND_PWM                0
+#define HAND_ENC_A              0
+#define HAND_ENC_B              0
+#define HAND_ENC_RATIO          1

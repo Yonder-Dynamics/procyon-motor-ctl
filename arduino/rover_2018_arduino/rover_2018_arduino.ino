@@ -27,6 +27,10 @@
 #define DRILL_ACT_PWM     6
 #define DRILL_SERVO_POS   11
 
+//wrist: dir=0 >> up
+//hand: dir=0  >> clockwise
+//base: pwm: limit to analogWrite(51)
+
 ROV rover;
 
 char val; 
@@ -66,8 +70,8 @@ void kill(){
   PI_SERIAL.println("#KILL#");
 }
 
-void make_linear_actuated(ActuatedJoint** driver,ActuatorMount* mount,LAD_INFO* info){
-    *driver = new ActuatedJoint(new LinearActuatorDriver(info),mount);
+void make_linear_actuated(int ID,ActuatedJoint** drivers,ActuatorMount* mount,LAD_INFO* info){
+    *(drivers+ID) = new ActuatedJoint(ID,new LinearActuatorDriver(info),mount);
 }
 
 int parsePhoneCommand(char input) {
@@ -118,13 +122,13 @@ int parsePhoneCommand(char input) {
   return 1;
 }
 
-void report_joint_data(JointData* joint){
+void report_joint_data(JointDriver* joint){
   PI_SERIAL.print("#ARM#");
-  PI_SERIAL.print(joint->ID);
+  PI_SERIAL.print(joint->getID());
   PI_SERIAL.print(",");
-  printFloat(joint->goal);
+  printFloat(joint->getGoal());
   PI_SERIAL.print(",");
-  printFloat(joint->angle);
+  printFloat(joint->getAngle());
   PI_SERIAL.print("\n");
 }
 
@@ -313,20 +317,20 @@ void setup() {
 
   drivers = calloc(NUM_ACTUATORS,sizeof(JointDriver*));
 
-  make_linear_actuated(drivers+BASE_JOINT_ID,&base_mount,&base_info);
-  make_linear_actuated(drivers+ELBOW_JOINT_ID,&elbow_mount,&elbow_info);
+  // make_linear_actuated(BASE_JOINT_ID,drivers,&base_mount,&base_info);
+  make_linear_actuated(ELBOW_JOINT_ID,drivers,&elbow_mount,&elbow_info);
 
-  Serial1.write('!');
-  pinMode(DRILL_PWM, OUTPUT);
-  pinMode(DRILL_DIR, OUTPUT);
-  proxyInit(DRILL_ACT_DIR, OUTPUT);
-  proxyInit(DRILL_ACT_PWM, OUTPUT);
-  servoInit(DRILL_SERVO_POS);
+  proxyReset();
+  // pinMode(DRILL_PWM, OUTPUT);
+  // pinMode(DRILL_DIR, OUTPUT);
+  // proxyInit(DRILL_ACT_DIR, OUTPUT);
+  // proxyInit(DRILL_ACT_PWM, OUTPUT);
+  // servoInit(DRILL_SERVO_POS);
   
   if (rover.setup() == ROV_OK) {
-    //Serial.println("Failed to fail.");
+    Serial.println("#SETUP# Completed.");
   } else {
-    PI_SERIAL.println("Failed. Hanging indefinitely...");
+    PI_SERIAL.println("#SETUP# Failed. Hanging indefinitely...");
     while(1);
   }
 
@@ -342,36 +346,14 @@ void loop() {
     */
     int read = PI_SERIAL.readBytesUntil('\n', buffer, BUFFER_LEN);
     buffer[read] = 0; //null terminate the string just in case
-    //Serial.write(buffer);
     int parsed = parseCommand(buffer); //what if there's more?
   }
-
-  // int i;
-  // char dir;
-  // if(killed){
-  //   return;
-  // }
-  // int shouldPrint = !(millis() % 500);
-  // for(i = 0; i < NUM_ACTUATORS; i++){
-  //     if(shouldPrint){
-  //       PI_SERIAL.print("Driver: ");
-  //       PI_SERIAL.println(i);
-  //     }
-  //     char update = drivers[i]->update();
-  //     char buffer[3];
-  //     buffer[0] = joint_map[i];
-  //     buffer[1] = update;
-  //     buffer[2] = 0;
-  //     ARM_SERIAL.print(buffer);
-  //     if(shouldPrint){
-  //       float angle = drivers[i]->getAngle();
-  //       PI_SERIAL.print("angle: ");
-  //       printFloat(angle*180/M_PI);
-  //       PI_SERIAL.print("\nupdate: ");
-  //       PI_SERIAL.println((int)update);
-  //     }
-  // }
-
+  int i;
+  for(i = 0; i < NUM_ACTUATORS; i++){
+    if(!drivers[i]) continue;
+    drivers[i]->update();
+    report_joint_data(drivers[i]);
+  }
 
   // while(ARM_SERIAL.available()){
   //   int read = ARM_SERIAL.readBytes(buffer,BUFFER_LEN);

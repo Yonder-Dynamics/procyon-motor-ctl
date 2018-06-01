@@ -1,15 +1,16 @@
 #include <ArduinoSTL.h>
-#include "Common.h"
-#include <map>
+#include "Arduino.h"
 #include <Servo.h>
 /* 
  * Yonder Dynamics 2018
  *
+ * Configures an arduino to act as an extension of a "host" controller,
+ * via serial. Currently only suppots basic pinout functionality
  * 
  */
 #define SERIAL                  Serial
 
-const int NUM_PINS = 32;
+const int NUM_PINS = NUM_DIGITAL_PINS+NUM_ANALOG_INPUTS;
 int pins[NUM_PINS];
 
 Servo servo;
@@ -35,8 +36,26 @@ int getMode(int pin){
     return pins[pin];
 }
 
+void servo_attach(int pin){
+    pins[pin] = SERVO_MODE;
+    servo.attach(pin);
+}
+
+void specialPinSetup(int pin,int mode){
+    switch(mode){
+        case SERVO_MODE:
+            servo_attach(pin);
+            break;
+        default:
+            break;
+    }
+}
+
 void setPinMode(int pin,int mode){
     pins[pin] = mode;
+    if(mode < 0){ //special modes, not mapped to arduino pin modes
+        specialPinSetup(pin,mode);
+    }
     pinMode(pin,mode);
 }
 
@@ -92,14 +111,17 @@ int read_ascii_pinmode(){
 }
 
 void doPinRead(int pin,int mode){
-    // SERIAL.println("doing pin read");
+    SERIAL.println("doing pin read");
+    SERIAL.println(pin);
     int value = 0;
     switch(mode){
         case ANALOG_OP:
             value = analogRead(pin);
+            SERIAL.println(value);
             break;
         case DIGITAL_OP:
             value = digitalRead(pin);
+            SERIAL.println(value);
             break;
         default:
             break;
@@ -107,16 +129,16 @@ void doPinRead(int pin,int mode){
 }
 
 void doPinWrite(int pin,int value,int mode){
-    // SERIAL.println("doing pin write");
+    SERIAL.println("doing pin write");
     SERIAL.println(pin);
     SERIAL.println(value);
     switch(mode){
         case ANALOG_OP:
-            // SERIAL.println("ANALOG");
+            SERIAL.println("ANALOG");
             analogWrite(pin,value);
             break;
         case DIGITAL_OP:
-            // SERIAL.println("DIGITAL");
+            SERIAL.println("DIGITAL");
             digitalWrite(pin,value);
             break;
         case -2:
@@ -209,27 +231,14 @@ int pin_op_raw(){
     return tot;
 }
 
-void servo_attach(){
-    int bufsize = 8;
-    char buf[bufsize];
-    int tot = 0;
-
-    int read = SERIAL.readBytesUntil(PINMODE_ASCII_DELIM,buf,bufsize);
-    tot += read;
-    if(!read) return tot;
-    buf[read] = 0;
-    int pin = atoi(buf);
-
-    pins[pin] = -2;
-    servo.attach(pin);
-}
-
 void wipe(){
-    SERIAL.println("WIPE");
     setup_pins();
 }
 
 void dump_pins(){
+    SERIAL.print("PIN MODES (");
+    SERIAL.print(NUM_PINS);
+    SERIAL.println(" total): ");
     int i;
     for(i = 0; i < NUM_PINS;i++){
         if(pins[i] == UNSET_OP) continue;
@@ -254,9 +263,6 @@ void loop(){
                 break;
             case PINOP_RAW_HEADER:
                 pin_op_raw();
-                break;
-            case SERVO_HEADER:
-                servo_attach();
                 break;
             case WIPE_HEADER:
                 wipe();

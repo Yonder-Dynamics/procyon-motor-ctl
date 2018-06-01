@@ -1,6 +1,6 @@
 #pragma once
 
-const unsigned long BAUDRATE = 57600;
+const unsigned long BAUDRATE = 115200;
 
 typedef struct{
     int ID;
@@ -14,13 +14,14 @@ typedef struct{
 #define PINOP_RAW_HEADER        '*'
 #define PINOP_ASCII_HEADER      '$'
 #define WIPE_HEADER             '!'
-#define SERVO_HEADER            '%'
 #define DUMP_HEADER             '?'
 
-#define UNSET_OP                 -1
+#define SERVO_MODE              -2
+
+#define UNSET_OP                -1
 #define DIGITAL_OP               0
 #define ANALOG_OP                1
-#define SERVO_OP                 2
+// #define SERVO_OP                 2
 
 #define MSG_HEADER_DELIM    '#'
 #define MSG_CONTENTS_DELIM  ','
@@ -69,7 +70,5 @@ enum errorCode {
     ROV_HEADING_OUT_OF_RANGE,
     ROV_DUTY_OUT_OF_RANGE,
 };
-
-void printFloat(float f);
 
 const int JOINT_DATA_SIZE = sizeof(JointData);

@@ -1,7 +1,10 @@
 #pragma once
 
-#include "common.h"
+//#include <Arduino.h>
+#include "Common.h"
+#include "defines.h"
 #include "ActuatedJoint.h"
+#include "EncodedJoint.h"
 
 /*
 typedef struct{
@@ -20,6 +23,75 @@ typedef struct{
 } ActuatorMount;
 */
 
+/*
+    int dir;
+    int pwm;
+    int a;
+    int b;
+} EncoderInfo;
+*/
+
+// #define make_cycler(INFO_NAME) \
+// void INFO_NAME ## _cycle(){ \
+//   int b = digitalRead(INFO_NAME.b);              \
+//   if(!b){                                   \
+//     INFO_NAME.cycles++;                          \
+//   } else {                                  \
+//     INFO_NAME.cycles--;                          \
+//   }                                         \
+//   INFO_NAME.cycles = INFO_NAME.cycles % INFO_NAME.ratio;   \
+// }                                          
+//end make_cycler
+
+// namespace RoverArmSpec{
+//     EncoderInfo* setup_globals();
+// };
+/*
+EncoderInfo base_rot_enc = {
+    .dir = ARM_BASE_ROT_DIR,
+    .pwm = ARM_BASE_ROT_PWM,
+    .a   = ARM_BASE_ENC_A,
+    .b   = ARM_BASE_ENC_B,
+    .tolerance = 0.1,
+    .ratio = ARM_BASE_RATIO,
+    .cycles = 0,
+    .interrupt = 0
+};
+
+EncoderInfo wrist_enc = {
+    .dir = ARM_WRIST_DIR,
+    .pwm = ARM_WRIST_PWM,
+    .a   = ARM_WRIST_ENC_A,
+    .b   = ARM_WRIST_ENC_B,
+    .tolerance = 0.1,
+    .ratio = ARM_WRIST_RATIO,
+    .cycles = 0,
+    .interrupt = 0
+};
+
+EncoderInfo twist_enc = {
+    .dir = ARM_TWIST_DIR,
+    .pwm = ARM_TWIST_PWM,
+    .a   = ARM_TWIST_ENC_A,
+    .b   = ARM_TWIST_ENC_B,
+    .tolerance = 0.1,
+    .ratio = ARM_TWIST_RATIO,
+    .cycles = 0,
+    .interrupt = 0
+};
+
+EncoderInfo hand_enc = {
+    .dir = HAND_DIR,
+    .pwm = HAND_PWM,
+    .a   = HAND_ENC_A,
+    .b   = HAND_ENC_B,
+    .tolerance = 0.1,
+    .ratio = HAND_ENC_RATIO,
+    .cycles = 0,
+    .interrupt = 0
+};
+*/
+
 ActuatorMount base_mount = {
     .left_mount_aligned=    13.55*DISTANCE_SCALE,
     .left_mount_perp=       3.68*DISTANCE_SCALE,
@@ -34,7 +106,7 @@ LAD_INFO base_info = {
     .trig=      46,
     .echo=      47,
     .tol=       1*DISTANCE_SCALE,
-    .offset=    13*DISTANCE_SCALE
+    .offset=    13*DISTANCE_SCALE,
 };
 
 //base length 35.56cm

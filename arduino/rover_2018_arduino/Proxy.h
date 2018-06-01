@@ -26,6 +26,8 @@ typedef struct{
     int pin;
 }ProxyServoInitSerialized;
 
+void proxyReset();
+
 void proxyInit(int pin, int mode);
 void servoInit(int pin);
 
