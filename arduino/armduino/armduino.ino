@@ -1,6 +1,7 @@
 #include <ArduinoSTL.h>
 #include "Arduino.h"
 #include <Servo.h>
+#include "Common.h"
 /* 
  * Yonder Dynamics 2018
  *
@@ -232,6 +233,12 @@ int pin_op_raw(){
 }
 
 void wipe(){
+    int i;
+    for(i = 0; i < NUM_PINS;i++){
+        if(pins[i]){
+            digitalWrite(i,0);
+        }
+    }
     setup_pins();
 }
 

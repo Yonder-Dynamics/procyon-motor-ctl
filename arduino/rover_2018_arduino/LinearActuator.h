@@ -9,7 +9,7 @@ typedef struct{
     int pwm;
     int trig;
     int echo;
-    distance_t tol;
+    float tol;
     distance_t offset;
 } LinearActuatorDriverInfo;
 
@@ -23,15 +23,15 @@ class LinearActuatorDriver{
         distance_t getRawExtension();
         char update();
         void move(int dir,int speed);
-        void setDigitalOut(void (*fn)(int,int));
-        void setAnalogOut(void (*fn)(int,int));
-        void setPinMode(void (*fn)(int,int));
+        virtual void setDigitalOut(void (*fn)(int,int));
+        virtual void setAnalogOut(void (*fn)(int,int));
+        virtual void setPinMode(void (*fn)(int,int));
     private:
         bool evaluate();
         void pinSetup();
 
         int pwm, dir; //actuator control pins
-        distance_t tolerance;
+        float tolerance;
         distance_t extension;
         distance_t goal;
         distance_t offset;

@@ -2,7 +2,7 @@
 #include <cmath>
 #include "LinearActuator.h"
 #include "JointDriver.h"
-#include "common.h"
+#include "Common.h"
 
 #define mount_t ActuatorMount
 #define mount_ptr mount_t*
@@ -35,6 +35,9 @@ class ActuatedJoint:public JointDriver{
         char update();
         void move(float movement);
         void tare(){}; //absolute measurement
+        virtual void setDigitalOut(void (*fn)(int,int));
+        virtual void setAnalogOut(void (*fn)(int,int));
+        virtual void setPinMode(void (*fn)(int,int));
     private:
         void calcMountInfo();
         float calcGoalExt(float goal_angle);

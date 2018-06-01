@@ -63,7 +63,7 @@
 #define ARM_WRIST_PWM           0
 #define ARM_WRIST_ENC_A         0
 #define ARM_WRIST_ENC_B         0
-#define ARM_WRIST_RATIO         0
+#define ARM_WRIST_RATIO         60
 
 #define ARM_TWIST_DIR           0
 #define ARM_TWIST_PWM           0

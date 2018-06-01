@@ -1,6 +1,6 @@
 #pragma once
 
-//#include <Arduino.h>
+#include <Arduino.h>
 #include "Common.h"
 #include "defines.h"
 #include "ActuatedJoint.h"
@@ -31,22 +31,19 @@ typedef struct{
 } EncoderInfo;
 */
 
-// #define make_cycler(INFO_NAME) \
-// void INFO_NAME ## _cycle(){ \
-//   int b = digitalRead(INFO_NAME.b);              \
-//   if(!b){                                   \
-//     INFO_NAME.cycles++;                          \
-//   } else {                                  \
-//     INFO_NAME.cycles--;                          \
-//   }                                         \
-//   INFO_NAME.cycles = INFO_NAME.cycles % INFO_NAME.ratio;   \
-// }                                          
+#define make_cycler(INFO_NAME) \
+void INFO_NAME ## _cycle(){ \
+  int b = digitalRead(INFO_NAME.b);              \
+  if(!b){                                   \
+    INFO_NAME.cycles++;                          \
+  } else {                                  \
+    INFO_NAME.cycles--;                          \
+  }                                         \
+  INFO_NAME.cycles = INFO_NAME.cycles % INFO_NAME.ratio;   \
+}                                          
 //end make_cycler
 
-// namespace RoverArmSpec{
-//     EncoderInfo* setup_globals();
-// };
-/*
+
 EncoderInfo base_rot_enc = {
     .dir = ARM_BASE_ROT_DIR,
     .pwm = ARM_BASE_ROT_PWM,
@@ -57,6 +54,8 @@ EncoderInfo base_rot_enc = {
     .cycles = 0,
     .interrupt = 0
 };
+
+make_cycler(base_rot_enc);
 
 EncoderInfo wrist_enc = {
     .dir = ARM_WRIST_DIR,
@@ -69,6 +68,8 @@ EncoderInfo wrist_enc = {
     .interrupt = 0
 };
 
+make_cycler(wrist_enc);
+
 EncoderInfo twist_enc = {
     .dir = ARM_TWIST_DIR,
     .pwm = ARM_TWIST_PWM,
@@ -80,6 +81,9 @@ EncoderInfo twist_enc = {
     .interrupt = 0
 };
 
+make_cycler(twist_enc);
+
+
 EncoderInfo hand_enc = {
     .dir = HAND_DIR,
     .pwm = HAND_PWM,
@@ -90,7 +94,8 @@ EncoderInfo hand_enc = {
     .cycles = 0,
     .interrupt = 0
 };
-*/
+make_cycler(hand_enc);
+
 
 ActuatorMount base_mount = {
     .left_mount_aligned=    13.55*DISTANCE_SCALE,
@@ -101,8 +106,8 @@ ActuatorMount base_mount = {
 };
 
 LAD_INFO base_info = {
-    .dir=       0,
-    .pwm=       0,
+    .dir=       NANO_A0,
+    .pwm=       9,
     .trig=      46,
     .echo=      47,
     .tol=       1*DISTANCE_SCALE,
@@ -121,8 +126,8 @@ ActuatorMount elbow_mount = {
 };
 
 LAD_INFO elbow_info = {
-    .dir=       0,
-    .pwm=       0,
+    .dir=       NANO_A1,
+    .pwm=       10,
     .trig=      49,
     .echo=      48,
     .tol=       1*DISTANCE_SCALE,

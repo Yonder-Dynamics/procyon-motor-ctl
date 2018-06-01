@@ -2,7 +2,6 @@
 
 ActuatedJoint::ActuatedJoint(int ID,LAD* lad,mount_ptr mount):
     mountInfo(mount),actuator(lad),JointDriver(ID){
-    
     this->calcMountInfo();
     this->angle = this->getAngle();
 }
@@ -98,6 +97,21 @@ void ActuatedJoint::calcMountInfo(){
 
 char ActuatedJoint::update(){
     return this->actuator->update();
+}
+
+void ActuatedJoint::setPinMode(void (*fn)(int,int)){
+    JointDriver::setPinMode(fn);
+    this->actuator->setPinMode(fn);
+}
+
+void ActuatedJoint::setDigitalOut(void (*fn)(int,int)){
+    JointDriver::setDigitalOut(fn);
+    this->actuator->setDigitalOut(fn);
+}
+
+void ActuatedJoint::setAnalogOut(void (*fn)(int,int)){
+    JointDriver::setAnalogOut(fn);
+    this->actuator->setAnalogOut(fn);
 }
 
 //law of cosines

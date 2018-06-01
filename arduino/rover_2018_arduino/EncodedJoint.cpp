@@ -4,6 +4,7 @@ EncodedJoint::EncodedJoint(int ID,EncoderInfo* info):JointDriver(ID),info(info){
     make_encoder_interrupt(info->a,this->info->interrupt);
     this->info->ratio *= MOTOR_RATIO;
     this->cycles = 0;
+    this->goal = 0;
 }
 
 void EncodedJoint::tare(){
@@ -11,7 +12,7 @@ void EncodedJoint::tare(){
 }
 
 float EncodedJoint::getAngle(){
-    return this->angle;
+    return this->info->cycles / this->info->ratio * M_PI;
 }
 
 void EncodedJoint::setGoal(float goal){

@@ -1,12 +1,26 @@
 #include "LinearActuator.h"
 
+namespace dummy{
+void pinModeDummy(int pin,int mode){
+    pinMode(pin,mode);
+}
+
+void analogWriteDummy(int pin,int value){
+    analogWrite(pin,value);
+}
+
+void digitalWriteDummy(int pin,int value){
+    digitalWrite(pin,value);
+}
+}
+
 LAD::LinearActuatorDriver(LAD_INFO* info):
     dir(info->dir),pwm(info->pwm),tolerance(info->tol),offset(info->offset){
     this->pinSetup();
     this->pinger = new Pinger(info->trig,info->echo);
     this->extension = this->getRawExtension();
     this->goal = this->extension;
-    this->speed = 255;
+    this->speed = 150;
     this->rolling_index = 0;
     this->window_size = 10;
 
@@ -14,8 +28,11 @@ LAD::LinearActuatorDriver(LAD_INFO* info):
 }
 
 void LAD::pinSetup(){
-    this->pinMode(this->pwm,OUTPUT);
-    this->pinMode(this->dir,OUTPUT);
+    // this->setDigitalOut(dummy::digitalWriteDummy);
+    // this->setAnalogOut(dummy::analogWriteDummy);
+    // this->setPinMode(dummy::pinModeDummy);
+    // this->pinMode(this->pwm,OUTPUT);
+    // this->pinMode(this->dir,OUTPUT);
 }
 
 void LAD::setDigitalOut(void (*fn)(int,int)){
@@ -24,10 +41,12 @@ void LAD::setDigitalOut(void (*fn)(int,int)){
 
 void LAD::setAnalogOut(void (*fn)(int,int)){
     this->analogWrite = fn;
+    this->pinMode(this->pwm,OUTPUT);
 }
 
 void LAD::setPinMode(void (*fn)(int,int)){
     this->pinMode = fn;
+    this->pinMode(this->dir,OUTPUT);
 }
 
 distance_t LAD::getRawExtension(){

@@ -52,19 +52,6 @@ typedef struct{
 
 #define DISTANCE_SCALE  1 //from cm
 
-// #define DEBUG
-
-#ifdef DEBUG
-#define pinMode(x,y) \
-do{                                 \
-    pinMode(x,y);                   \
-    Serial.println("Pin mode: ");   \
-    Serial.print(x);                \
-    Serial.print(' ');              \
-    Serial.println(y);              \
-} while(0);
-#endif
-
 enum errorCode {
     ROV_OK,
     ROV_HEADING_OUT_OF_RANGE,

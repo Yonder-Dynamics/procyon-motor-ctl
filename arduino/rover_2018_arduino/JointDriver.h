@@ -1,12 +1,10 @@
 #pragma once
 
+#include <Arduino.h>
+
 class JointDriver{
     public:
-        virtual JointDriver(int ID):
-            ID(ID),
-            digitalWrite(digitalWrite),
-            analogWrite(analogWrite),
-            pinMode(pinMode){};
+        virtual JointDriver(int ID);
         virtual float getGoal();
         virtual void setGoal(float goal);
         virtual float getAngle();

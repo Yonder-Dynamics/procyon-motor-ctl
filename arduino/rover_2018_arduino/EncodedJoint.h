@@ -1,5 +1,7 @@
 #pragma once
 
+#include <ArduinoSTL.h>
+#include <cmath>
 #include <Arduino.h>
 #include "Common.h"
 #include "JointDriver.h"
