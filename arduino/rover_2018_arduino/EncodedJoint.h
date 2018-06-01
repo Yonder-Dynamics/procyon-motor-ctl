@@ -31,6 +31,8 @@ class EncodedJoint:public JointDriver{
         char update();
         void move(float movement);
         void tare();
+        void kill();
+        void unkill();
         virtual void activate();
     private:
         EncoderInfo* info;

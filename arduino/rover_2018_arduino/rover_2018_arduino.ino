@@ -35,16 +35,12 @@
 
 ROV rover;
 
-char val; 
+unsigned long AUTO_KILL_TIME = 50000000;
+unsigned long prev_message_time = 0;
 
 const int BUFFER_LEN = 64;
 char buffer[BUFFER_LEN];
 char delim = ',';
-
-
-// float goals[NUM_JOINTS+1];
-
-// int joint_map[NUM_JOINTS];
 
 JointData joint_data;
 JointData* joint_buffer = &joint_data;
@@ -64,6 +60,10 @@ void printFloat(float f){
 void kill(){
   killed = !killed;
   PI_SERIAL.println("#KILL#");
+  for(int i = 0; i < NUM_JOINTS; i++){
+    drivers[i]->kill();
+  }
+  rover.kill();
 }
 
 void make_linear_actuated(int ID,ActuatedJoint** drivers,ActuatorMount* mount,LAD_INFO* info){
@@ -74,54 +74,6 @@ void make_proxied(ActuatedJoint* driver){
   driver->setPinMode(proxyInit);
   driver->setAnalogOut(proxyAnalogWrite);
   driver->setDigitalOut(proxyDigitalWrite);
-}
-
-int parsePhoneCommand(char input) {
-  std::vector<int> duties;
-  switch(input) {
-  case '0':
-    duties.push_back(255);
-    duties.push_back(255);
-    duties.push_back(255);
-    duties.push_back(255);
-    duties.push_back(255);
-    duties.push_back(255);
-    break;
-  case '1':
-    duties.push_back(-255);
-    duties.push_back(-255);
-    duties.push_back(-255);
-    duties.push_back(255);
-    duties.push_back(255);
-    duties.push_back(255);
-    break;
-  case '2':
-    duties.push_back(-255);
-    duties.push_back(-255);
-    duties.push_back(-255);
-    duties.push_back(-255);
-    duties.push_back(-255);
-    duties.push_back(-255);
-    break;
-  case '3':
-    duties.push_back(255);
-    duties.push_back(255);
-    duties.push_back(255);
-    duties.push_back(-255);
-    duties.push_back(-255);
-    duties.push_back(-255);
-    break;
-  default:
-    duties.push_back(0);
-    duties.push_back(0);
-    duties.push_back(0);
-    duties.push_back(0);
-    duties.push_back(0);
-    duties.push_back(0);
-    break;
-  }
-  rover.setDuties(duties);
-  return 1;
 }
 
 void report_joint_data(JointDriver* joint){
@@ -241,6 +193,52 @@ int parseDrillCommand(char* input){
   return start - input;
 }
 
+int parseManualCommand(char* input){
+  int joint;
+  char* start = input;
+  if(!parseInt(&input,MSG_CONTENTS_DELIM,&joint)){
+    return start - input;
+  }
+  int dir;
+  if(!parseInt(&input,MSG_CONTENTS_DELIM,&dir)){
+    return start - input;
+  }
+
+  dir = (dir!=0)?HIGH:LOW;
+
+  switch(joint){
+    case BASE_ROT_ID:
+      digitalWrite(ARM_BASE_ROT_DIR,dir);
+      analogWrite(ARM_BASE_ROT_PWM,ARM_BASE_ROT_SPEED);
+      break;
+    case BASE_JOINT_ID:
+      proxyDigitalWrite(ARM_BASE_JOINT_DIR,dir);
+      proxyAnalogWrite(ARM_BASE_JOINT_PWM,ARM_BASE_JOINT_SPEED);
+      break;
+    case ELBOW_JOINT_ID:
+      proxyDigitalWrite(ARM_ELBOW_DIR,dir);
+      proxyAnalogWrite(ARM_ELBOW_PWM,ARM_ELBOW_JOINT_SPEED);
+      break;
+    case WRIST_JOINT_ID:
+      proxyDigitalWrite(ARM_WRIST_DIR,dir);
+      proxyAnalogWrite(ARM_WRIST_PWM,ARM_WRIST_SPEED);
+      break;
+    case WRIST_ROT_ID:
+      proxyDigitalWrite(ARM_TWIST_DIR,dir);
+      proxyAnalogWrite(ARM_TWIST_PWM,ARM_TWIST_SPEED);
+      break;
+    case HAND_ID:
+      proxyDigitalWrite(HAND_DIR,dir);
+      proxyAnalogWrite(HAND_PWM,HAND_SPEED);
+      break;
+    default:
+      PI_SERIAL.println("invalid joint ID");
+      break;
+  }
+
+  return start - input;
+}
+
 int parseCommand(char* input) {
   char* start = input;
   int i = 0;
@@ -260,6 +258,8 @@ int parseCommand(char* input) {
       return i + parseDriveCommand(input);
     case DRILL_MSG_HEADER:
       return i + parseDrillCommand(input);
+    case MANUAL_CTRL_HEADER:
+      return i + parseManualCommand(input);
     case KILL_HEADER:
     default:
       kill();
@@ -320,15 +320,26 @@ void setup() {
 
   drivers = calloc(NUM_JOINTS,sizeof(JointDriver*));
 
-  // make_linear_actuated(BASE_JOINT_ID,drivers,&base_mount,&base_info);
-  // make_proxied(drivers[BASE_JOINT_ID]);
-  // make_linear_actuated(ELBOW_JOINT_ID,drivers,&elbow_mount,&elbow_info);
-  // make_proxied(drivers[ELBOW_JOINT_ID]);
+  make_linear_actuated(BASE_JOINT_ID,drivers,&base_mount,&base_info);
+  make_proxied(drivers[BASE_JOINT_ID]);
+  make_linear_actuated(ELBOW_JOINT_ID,drivers,&elbow_mount,&elbow_info);
+  make_proxied(drivers[ELBOW_JOINT_ID]);
+
+  drivers[BASE_ROT_ID] = new EncodedJoint(BASE_ROT_ID,&base_rot_enc);
+  make_proxied(drivers[BASE_ROT_ID]);
+  drivers[BASE_ROT_ID]->activate();
 
   drivers[WRIST_JOINT_ID] = new EncodedJoint(WRIST_JOINT_ID,&wrist_enc);
   make_proxied(drivers[WRIST_JOINT_ID]);
   drivers[WRIST_JOINT_ID]->activate();
 
+  drivers[WRIST_ROT_ID] = new EncodedJoint(WRIST_ROT_ID,&twist_enc);
+  make_proxied(drivers[WRIST_ROT_ID]);
+  drivers[WRIST_ROT_ID]->activate();
+
+  drivers[HAND_ID] = new EncodedJoint(HAND_ID,&hand_enc);
+  make_proxied(drivers[HAND_ID]);
+  drivers[HAND_ID]->activate();
 
   // pinMode(DRILL_PWM, OUTPUT);
   // pinMode(DRILL_DIR, OUTPUT);
@@ -356,15 +367,19 @@ void loop() {
     int read = PI_SERIAL.readBytesUntil('\n', buffer, BUFFER_LEN);
     buffer[read] = 0; //null terminate the string just in case
     int parsed = parseCommand(buffer); //what if there's more?
+    prev_message_time = millis();
   }
+
+  if (millis()-prev_message_time > AUTO_KILL_TIME) {
+    kill();
+  }
+
   int i;
   for(i = 0; i < NUM_JOINTS; i++){
     if(!drivers[i]) continue;
     drivers[i]->update();
     report_joint_data(drivers[i]);
   }
-
-
   // while(ARM_SERIAL.available()){
   //   int read = ARM_SERIAL.readBytes(buffer,BUFFER_LEN);
   //   buffer[read] = 0;

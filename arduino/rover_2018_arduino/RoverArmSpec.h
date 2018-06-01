@@ -54,7 +54,7 @@ EncoderInfo base_rot_enc = {
     .cycles = 0,
     .interrupt = 0,
     .flip = false,
-    .speed = 30
+    .speed = ARM_BASE_ROT_SPEED
 };
 
 make_cycler(base_rot_enc);

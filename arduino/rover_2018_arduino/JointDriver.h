@@ -16,6 +16,8 @@ class JointDriver{
         virtual void setAnalogOut(void (*fn)(int,int));
         virtual void setPinMode(void (*fn)(int,int));
         virtual void activate(){};
+        virtual void kill();
+        virtual void unkill();
     private:
         int ID;
     protected:

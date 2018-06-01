@@ -38,13 +38,15 @@ class ActuatedJoint:public JointDriver{
         virtual void setDigitalOut(void (*fn)(int,int));
         virtual void setAnalogOut(void (*fn)(int,int));
         virtual void setPinMode(void (*fn)(int,int));
+        void kill();
+        void unkill();
     private:
         void calcMountInfo();
         float calcGoalExt(float goal_angle);
 
         float goal;
         float angle;
-        bool flipped;
+        bool flipped, killed;
         mount_ptr mountInfo;
         LAD* actuator;
 };

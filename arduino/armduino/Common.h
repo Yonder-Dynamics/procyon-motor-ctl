@@ -29,11 +29,13 @@ typedef struct{
 #define DRIVE_MSG_HEADER    0
 #define ARM_MSG_HEADER      1
 #define DRILL_MSG_HEADER    2
+#define MANUAL_CTRL_HEADER  3
 
 #define BASE_JOINT   0
 #define ELBOW_JOINT  1
 #define WRIST_JOINT  2
 
+#define NUM_JOINTS      6
 #define BASE_ROT_ID     0
 #define BASE_JOINT_ID   1
 #define ELBOW_JOINT_ID  2

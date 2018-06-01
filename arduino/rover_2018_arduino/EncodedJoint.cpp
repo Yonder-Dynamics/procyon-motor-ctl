@@ -7,6 +7,16 @@ EncodedJoint::EncodedJoint(int ID,EncoderInfo* info):JointDriver(ID),info(info){
     this->activated = 0;
 }
 
+void EncodedJoint::kill(){
+    this->goal = this->getAngle();
+    this->activated = 0;
+    this->move(0);
+}
+
+void EncodedJoint::unkill(){
+    this->activated = millis();
+}
+
 void EncodedJoint::tare(){
     this->info->cycles = 0;
 }
@@ -24,6 +34,9 @@ float EncodedJoint::getGoal(){
 }
 
 char EncodedJoint::update(){
+    if(!this->activated){
+        return 0;
+    }
     if(this->waiting){
         if(millis() - this->activated > MOTOR_STARTUP_WAIT){
             waiting = false;
@@ -46,10 +59,10 @@ void EncodedJoint::move(float movement){
         pwm = this->info->speed;
     }
     int dir = (flip)?HIGH:LOW;
-    this->digitalWrite(this->info->dir,dir);
-    this->analogWrite(this->info->pwm,pwm);
-    Serial.println(dir);
-    Serial.println(pwm);
+    // this->digitalWrite(this->info->dir,dir);
+    // this->analogWrite(this->info->pwm,pwm);
+    // Serial.println(dir);
+    // Serial.println(pwm);
 }
 
 void EncodedJoint::activate(){
