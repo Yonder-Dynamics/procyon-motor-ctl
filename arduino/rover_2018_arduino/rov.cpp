@@ -21,10 +21,25 @@ int ROV::setup(void) {
   return ROV_OK;
 }
 
+void ROV::kill() {
+  killed = true;
+  std::vector<int> zero;
+  for (int i=0; i<drivetrain.size(); i++)
+    zero.push_back(0);
+  setDuties(zero);
+}
+
+void ROV::unkill() {
+  killed = false;
+}
+
 int ROV::setDuties(std::vector<int> duties) {
+  if (killed)
+    return -1;
   for (int i = 0; i < drivetrain.size(); i++) {
     drivetrain[i].setDuty(duties.at(i));
   }
+  return 0;
 }
 
 /**
@@ -32,6 +47,8 @@ int ROV::setDuties(std::vector<int> duties) {
  * @return Error code defined in common.h
  */
 int ROV::setSpeeds(float turningRadius, float turningSpeed, float forwardVel) {
+  if (killed)
+    return -1;
 
   // UPDATE DIRECTION
   float maxTurningSpeed = 0;

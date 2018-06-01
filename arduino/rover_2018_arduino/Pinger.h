@@ -1,5 +1,5 @@
 #pragma once
-#include "common.h"
+#include "Common.h"
 
 #define distance_t unsigned long //centimeters
 #define PINGER_SCALE 10000
