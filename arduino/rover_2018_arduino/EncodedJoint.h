@@ -18,6 +18,7 @@ struct EncoderInfo{
     void (*interrupt)();
     bool flip;
     int speed;
+    // AutoPID* pid;
 };
 
 void make_encoder_interrupt(int pin,void(*fn)(void));

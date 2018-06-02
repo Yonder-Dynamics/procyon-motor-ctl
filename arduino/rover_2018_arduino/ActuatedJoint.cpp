@@ -17,9 +17,6 @@ float ActuatedJoint::getAngle() {
 
   float ext = ((float)this->actuator->getExtension())/PINGER_SCALE;
 
-
-
-
   float angle = left_a + right_a + cosines(ext,left_hyp,right_hyp);
   if(this->mountInfo->flipped) {
     angle = M_PI - angle;

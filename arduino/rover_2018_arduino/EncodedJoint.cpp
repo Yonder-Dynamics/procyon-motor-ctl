@@ -34,6 +34,13 @@ float EncodedJoint::getGoal(){
 }
 
 char EncodedJoint::update(){
+    // if(!this->info->pid->isStopped()){
+    //     this->info->pid->run();
+    //     if(this->info->pid->atSetPoint(this->info->tolerance)){
+    //         this->info->pid->stop();
+    //     }
+    // }
+    // return 0;
     if(!this->activated){
         return 0;
     }
