@@ -2,7 +2,7 @@
 
 void proxyInit(int pin,int mode){
     ProxyInitSerialized p = { PINMODE_RAW_HEADER, pin, mode};
-    Serial1.write((char*)&p,sizeof(ProxyInitSerialized));
+    PROXY_SERIAL.write((char*)&p,sizeof(ProxyInitSerialized));
 }
 
 void servoInit(int pin){
@@ -31,8 +31,3 @@ void proxyCull(int timeout){
     ProxyCullSerialized s = { CULL_RAW_HEADER, timeout };
     PROXY_SERIAL.write((char*)&s,sizeof(ProxyCullSerialized));
 }
-
-// void proxyServoWrite(int pin, int value){
-//     ProxyWriteSerialized s = { SERVO_HEADER, pin, value, mode };
-//     Serial1.write((char*)&s,sizeof(ProxyWriteSerialized));
-// }

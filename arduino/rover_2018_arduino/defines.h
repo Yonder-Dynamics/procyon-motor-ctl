@@ -51,34 +51,34 @@
 #define ARM_BASE_ROT_SPEED      50
 
 
-#define ARM_BASE_JOINT_DIR      NANO_A0
-#define ARM_BASE_JOINT_PWM      9
+#define ARM_BASE_JOINT_DIR      A12
+#define ARM_BASE_JOINT_PWM      3
 #define ARM_BASE_JOINT_ECHO     46
 #define ARM_BASE_JOINT_TRIG     47
 #define ARM_BASE_JOINT_SPEED    255
 
-#define ARM_ELBOW_DIR           NANO_A1
-#define ARM_ELBOW_PWM           10
+#define ARM_ELBOW_DIR           A11
+#define ARM_ELBOW_PWM           2
 #define ARM_ELBOW_ECHO          48
 #define ARM_ELBOW_TRIG          49
 #define ARM_ELBOW_JOINT_SPEED   255
 
-#define ARM_WRIST_DIR           11
-#define ARM_WRIST_PWM           3
-#define ARM_WRIST_ENC_A         2
+#define ARM_WRIST_DIR           A14
+#define ARM_WRIST_PWM           A10
+#define ARM_WRIST_ENC_A         18
 #define ARM_WRIST_ENC_B         41
 #define ARM_WRIST_RATIO         60
 #define ARM_WRIST_SPEED         255
 
-#define ARM_TWIST_DIR           12
-#define ARM_TWIST_PWM           5
-#define ARM_TWIST_ENC_A         3
+#define ARM_TWIST_DIR           A15
+#define ARM_TWIST_PWM           12
+#define ARM_TWIST_ENC_A         19
 #define ARM_TWIST_ENC_B         43
 #define ARM_TWIST_RATIO         3
 #define ARM_TWIST_SPEED         127
 
-#define HAND_DIR                13
-#define HAND_PWM                6
+#define HAND_DIR                A13
+#define HAND_PWM                5
 #define HAND_ENC_A              20
 #define HAND_ENC_B              45
 #define HAND_ENC_RATIO          1

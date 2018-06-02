@@ -114,10 +114,10 @@ ActuatorMount base_mount = {
 };
 
 LAD_INFO base_info = {
-    .dir=       NANO_A0,
-    .pwm=       9,
-    .trig=      46,
-    .echo=      47,
+    .dir=       ARM_BASE_JOINT_DIR,
+    .pwm=       ARM_BASE_JOINT_PWM,
+    .trig=      ARM_BASE_JOINT_TRIG,
+    .echo=      ARM_BASE_JOINT_ECHO,
     .tol=       1*DISTANCE_SCALE,
     .offset=    13*DISTANCE_SCALE,
 };
@@ -134,27 +134,10 @@ ActuatorMount elbow_mount = {
 };
 
 LAD_INFO elbow_info = {
-    .dir=       NANO_A1,
-    .pwm=       10,
-    .trig=      49,
-    .echo=      48,
+    .dir=       ARM_ELBOW_DIR,
+    .pwm=       ARM_ELBOW_PWM,
+    .trig=      ARM_ELBOW_TRIG,
+    .echo=      ARM_ELBOW_ECHO,
     .tol=       1*DISTANCE_SCALE,
     .offset=    18.5*DISTANCE_SCALE
-};
-
-ActuatorMount wrist_mount = {
-    .left_mount_aligned=    0*DISTANCE_SCALE,
-    .left_mount_perp=       0*DISTANCE_SCALE,
-    .right_mount_aligned=   0*DISTANCE_SCALE,
-    .right_mount_perp=      0*DISTANCE_SCALE,
-    .flipped=false
-};
-
-LAD_INFO wrist_info = {
-    .dir=       0,
-    .pwm=       0,
-    .trig=      0,
-    .echo=      0,
-    .tol=       2*DISTANCE_SCALE,
-    .offset=    0*DISTANCE_SCALE
 };
