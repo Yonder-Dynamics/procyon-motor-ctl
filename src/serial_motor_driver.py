@@ -1,22 +1,24 @@
-#!/usr/bin/env python
-import rospy
-from rover_ctl.msg import MotorCMD
-from std_msgs.msg import Bool
-from std_msgs.msg import String
-from serial import Serial
-import time, math
+#!/usr/bin/env python3
+ENABLE_SERIAL = True
+if ENABLE_SERIAL:
+    from serial import Serial
+import time
+import math
+import json
+
+import redis
 
 #addr = "00:14:03:05:F1:F5"
-MSG_RATE  = 15 #in Hz
+MSG_RATE  = 20 #in Hz
 MSG_PER = 1./MSG_RATE
 MAX_TURNING_RADIUS = 10
 TIMEOUT = 2
-CLEAR_BUFFER = 20
+CLEAR_BUFFER = 2
 BAUDRATE = [9600,57600,115200][2]
 buffer_count = 0
 # Always use serial ports like this because they don't change
 serial_port = "/dev/serial/by-id/usb-Arduino_Srl_Arduino_Mega_55635303838351816162-if00"
-pub = rospy.Publisher("arduino_serial", String, queue_size=20)
+
 
 MSG_TYPES = {
     "drive": 0,
@@ -34,7 +36,9 @@ def openSerial():
 
 # Open serial. DO NOT REMOVE DELAY
 print("Opening serial")
-openSerial()
+if ENABLE_SERIAL:
+    print("Looking for serial port: %s ..." % serial_port)
+    openSerial()
 print("Started listening")
 
 last_message_send = 0
@@ -42,7 +46,7 @@ is_stopped = False
 
 # data: [int]
 def makeSerialMsg(msg):
-    serialMsg = b'#%i#' % MSG_TYPES[msg.type] + (b'{},' * len(msg.data) + b'\n')
+    serialMsg = '#%i#' % MSG_TYPES[msg.type] + ('{},' * len(msg.data) + '\n')
     serialMsg = serialMsg.format(*msg.data)
     print(serialMsg)
     return serialMsg
@@ -50,7 +54,7 @@ def makeSerialMsg(msg):
 def kill_callback(msg):
     global is_stopped
     is_stopped = msg.data
-    s.write(makeSerialMsg([0]*6))
+    #s.write(makeSerialMsg([0]*6))
 
 def callback(msg):
     global s, is_stopped, last_message_send, buffer_count
@@ -58,12 +62,14 @@ def callback(msg):
     if is_stopped:
         return
     if msg.type == "terr":
-        s.write("#3#")
+        #s.write("#3#")
+        pass
 
     if time.time() - last_message_send < MSG_PER:
         return
     last_message_send = time.time()
 
+    serialMsg = makeSerialMsg(msg)
     # Check for out of bounds ints
     for x in msg.data:
         if x > 255:
@@ -74,33 +80,38 @@ def callback(msg):
         s.reset_output_buffer()
     buffer_count += 1
 
-    serialMsg = makeSerialMsg(msg)
 
-    # Reopen serial
-    try:
-        s.write(serialMsg)
-    except:
-        openSerial()
-        print("Looking for serial port: %s ..." % serial_port)
-
-    # Read data from serial as well
-    out = s.read(s.inWaiting()).decode('ascii')
-    pub.publish(out)
-    #print(s.readline())
+    if ENABLE_SERIAL:
+        # Reopen serial
+        try:
+            s.write(bytes(serialMsg, 'utf-8'))
+        except:
+            openSerial()
+            print("Failed to write to serial")
+        # Read data from serial as well
+        out = s.read(s.inWaiting()).decode('ascii')
 
 def init():
     global last_message_send
-    rospy.init_node("serial_motor_driver", anonymous=True)
-    rospy.Subscriber("/motor_ctl", MotorCMD, callback)
-    rospy.Subscriber("/killswitch", Bool, kill_callback)
     # Check if still recieving messages
     #while not rospy.is_shutdown():
     #    if last_message_send > TIMEOUT:
     #        s.write(makeSerialMsg([0] * 6))
     #    rospy.spin_once()
-    rospy.spin()
-    s.write(makeSerialMsg([0] * 6))
-    s.close()
+    # s.write(makeSerialMsg([0] * 6))
+    # s.close()
+    client = redis.StrictRedis()
+    ps = client.pubsub()
+    ps.subscribe("joystick")
+    for message in ps.listen():
+        if message["type"] != "message":
+            continue
+        payload = json.loads(message["data"].decode("utf-8"))
+        msg = lambda x: x
+        msg.type = payload["type"]
+        msg.data = payload["data"]
+        print(message)
+        callback(msg)
 
 if __name__ == "__main__":
     init()
