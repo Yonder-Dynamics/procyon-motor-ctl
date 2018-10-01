@@ -1,0 +1,4 @@
+
+
+class DriverWriteException(IOError):
+    pass

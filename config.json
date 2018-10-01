@@ -1,0 +1,16 @@
+{
+    "protocol": {
+        "type": "hash_delimited"
+    },
+    "driver": {
+        "type": "files",
+        "port": "/dev/serial/by-id/usb-Arduino_Srl_Arduino_Mega_55635303838351816162-if00",
+        "baudrate": 57600
+    },
+    "input": {
+        "type": "redis",
+        "host": "localhost",
+        "port": "6379",
+        "topic": "joystick"
+    }
+}
