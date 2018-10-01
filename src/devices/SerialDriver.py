@@ -1,4 +1,5 @@
 import serial
+
 from devices.Driver import DriverWriteException
 from util.Keychain import Keychain
 
@@ -42,6 +43,7 @@ class SerialDriver:
 
     def connect(self):
         self.conn = serial.Serial(self.port, self.baudrate)
+        time.sleep(1)  # sleep for 1sec to let the device connect
 
     def fix(self):
         self.connect()  # try to fix a connection issue by reopening the port

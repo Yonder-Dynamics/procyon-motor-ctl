@@ -1,6 +1,7 @@
 {
     "protocol": {
-        "type": "hash_delimited"
+        "type": "hash_delimited",
+        "msg_rate": 20
     },
     "driver": {
         "type": "files",
