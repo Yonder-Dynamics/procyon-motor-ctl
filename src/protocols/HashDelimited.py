@@ -18,6 +18,8 @@ def create(config):
 
 
 def format_message(msg_type, data):
+    if any([d > 255 for d in data]):  # if we get invalid data, zero it
+        data = [0 for d in data]
     return MSG_FORMAT.format(
         type=msg_type,
         csv=','.join([str(d) for d in data]),
