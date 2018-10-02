@@ -1,4 +1,4 @@
-import serial
+import serial, time
 
 from devices.Driver import DriverWriteException
 from util.Keychain import Keychain

@@ -9,7 +9,7 @@ import json
 import redis
 
 #addr = "00:14:03:05:F1:F5"
-MSG_RATE  = 20 #in Hz
+MSG_RATE  = 10 #in Hz
 MSG_PER = 1./MSG_RATE
 MAX_TURNING_RADIUS = 10
 TIMEOUT = 2
@@ -82,6 +82,8 @@ def callback(msg):
 
 
     if ENABLE_SERIAL:
+        out = s.read(s.inWaiting()).decode('ascii')
+        print(out)
         # Reopen serial
         try:
             s.write(bytes(serialMsg, 'utf-8'))
@@ -89,7 +91,6 @@ def callback(msg):
             openSerial()
             print("Failed to write to serial")
         # Read data from serial as well
-        out = s.read(s.inWaiting()).decode('ascii')
 
 def init():
     global last_message_send

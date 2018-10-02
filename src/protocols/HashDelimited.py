@@ -1,4 +1,5 @@
 import time
+from icecream import ic
 
 from devices.Driver import DriverWriteException
 from util.Keychain import Keychain
@@ -74,7 +75,7 @@ class HashDelimitedProtocol:
             self.buffer[1] = format_message(msg_type, data)
 
         curr = time.time()
-        if curr - self.last_send > self.msg_per:
+        if curr - self.last_send > self.msg_per or priority >= 1:
             msg = self.buffer[1]
             # attempt to send message
             while not attempt_write(self.driver.send, msg):
